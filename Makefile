@@ -22,6 +22,9 @@ clean:
 run: $(iso)
 	@qemu-system-x86_64 -cdrom $(iso)
 
+runv: $(iso)
+	@virtualbox $(iso)
+
 iso: $(iso)
 
 $(iso): $(kernel) $(grub_cfg)
@@ -37,9 +40,9 @@ $(kernel): $(assembly_object_files) $(c_object_files) $(linker_script)
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)
-	@nasm -felf64 $< -o $@
+	@nasm -i./src/arch/$(arch)/ -felf64 $< -o $@ 
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.c
 	@mkdir -p $(shell dirname $@)
-	@gcc -m64 -Wall -c $< -o $@
+	@gcc -c -m64 -std=gnu99 -ffreestanding -O2 -Wall -Wextra -c $< -o $@ 
