@@ -23,6 +23,25 @@
 
 volatile char * video;
 int row,col;
+int color_FG, color_BG;
+
+typedef long long int64;
+typedef unsigned long long uint64;
+typedef long int32;
+typedef unsigned long uint32;
+typedef short int16;
+typedef unsigned short uint16;
+typedef char int8;
+typedef unsigned char uint8;
+
+typedef struct registers
+{
+   uint32 ds;                  // Data segment selector
+   uint32 edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by pusha.
+   uint32 int_no, err_code;    // Interrupt number and error code (if applicable)
+   uint32 eip, cs, eflags, useresp, ss; // Pushed by the processor automatically.
+} registers_t; 
+
 
 
 void cursorset(int x, int y){
@@ -95,12 +114,6 @@ void clline(int color,int x, int y){
 	cursorset(0,a);
 }
 
-void init_console(){
-	video = (volatile char *) 0xb8000;
-	cls(VGA_COLOR_BLACK);
-	printf(VGA_COLOR_WHITE,"console init complete\n");
-} 
-
 void putchar(int color_FG, char str){
 	if(str == '\n'){
 		cursorset(0,row+1);
@@ -121,15 +134,34 @@ void putchar(int color_FG, char str){
 	}
 }
 
-void printf(int color_FG, const char * text){
+void printf(const char * text){
+	int color = color_FG;
 	for (; *text != 0; text++){
-		putchar(color_FG,*text);
+		putchar(color,*text);
 	}
 }
 
+void init_console(){
+
+	color_FG = VGA_COLOR_WHITE;
+	color_BG = VGA_COLOR_BLACK;
+	video = (volatile char *) 0xb8000;
+	cls(VGA_COLOR_BLACK);
+	printf("console init complete\n");
+} 
+
 void main(){
 	init_console();	
-	printf(VGA_COLOR_WHITE,"hey");
-	printf(VGA_COLOR_WHITE,"hey");
+	printf("hey");
+	printf("hey");
+	asm volatile ("int $0x3");
 	while(1){}
 }
+
+
+void isr_handler(registers_t regs)
+{
+   printf("recieved interrupt: ");
+   // printf(regs.int_no);
+   printf("\n");
+} 
