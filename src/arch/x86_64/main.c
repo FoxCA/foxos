@@ -154,14 +154,5 @@ void main(){
 	init_console();	
 	printf("hey");
 	printf("hey");
-	asm volatile ("int $0x3");
 	while(1){}
 }
-
-
-void isr_handler(registers_t regs)
-{
-   printf("recieved interrupt: ");
-   // printf(regs.int_no);
-   printf("\n");
-} 

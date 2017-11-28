@@ -2,6 +2,7 @@ extern long_mode_start
 extern PM16
 global start
 
+
 section .text
 bits 32
 start:
@@ -14,6 +15,29 @@ start:
     call set_up_page_tables ; new
     call enable_paging     ; new
 
+    ; mov dword ebx, idtR               ; Load pointer to IDT table
+
+    ; ; Set the IDT entry
+    ; mov dword eax, Interrupt0Handler  ; Load pointer to interrupt handler
+    ; mov byte [ebx], al                ; Set 1st byte of handler pointer
+    ; mov byte [ebx+1], ah              ; Set 2nd byte of handler pointer
+    ; shr dword eax, 0x10               ; Shift handler pointer 16-bits right
+    ; mov byte [ebx+6], al              ; Set 3rd byte of handler pointer
+    ; mov byte [ebx+7], ah              ; Set 4th byte of handler pointer
+    ; mov word [ebx+2], 0x8             ; Set Code Segment selector to 8 
+    ;                               ;   - see GDT article for matchig GDT setup
+    ; mov byte [ebx+4], 0x0             ; Set 5th byte to 0 as required
+    ; mov byte [ebx+5], 0x8F            ; Set P=1, DPL=0, S=0, Type=0xE (32-bit trap gate)
+
+    ; add ebx, 8                        ; Move to next IDT entry
+
+    ; ; Fill in IDT Pointer structure
+    ; mov dword [idtR  + 2],idtR 
+    ; ; Tell CPU about IDT
+    ; mov dword eax, idtR 
+    ; lidt [eax]
+
+    in eax
     ; load the 64-bit GDT
     lgdt [gdt64.pointer]
     jmp gdt64.code:long_mode_start
@@ -22,6 +46,13 @@ start:
     ; should never happen because long_mode is started
     mov dword [0xb8000], 0x2f4b2f4f
     hlt
+
+
+; Interrupt0Handler:
+;     extern printf
+;     push 0
+;     push "hey"
+;     call printf
 
 
 check_multiboot:
@@ -145,7 +176,6 @@ enable_paging:
 
 section .bss
 	align 4096
-
 	p4_table:
 		resb 4096
 	p3_table:
@@ -155,9 +185,6 @@ section .bss
 	stack_bottom:
 		resb 4096 * 4
 	stack_top:
-
-
-
 
 section .rodata
 gdt64:
@@ -169,3 +196,7 @@ gdt64:
 	.pointer:
 		dw $ - gdt64 - 1
 		dq gdt64
+
+idtR:
+    dw 0xffff       ;Limit
+    dd 0            ;Base

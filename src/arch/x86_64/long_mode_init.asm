@@ -4,9 +4,8 @@ section .text
 bits 64
 long_mode_start:
 
-
 	extern main
-    call main
+    jmp main
 
     ; print `OKAY` to screen
     mov rax, 0x2f592f412f4b2f4f
