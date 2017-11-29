@@ -1,8 +1,6 @@
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso
-target ?= $(arch)-jos
-rust_os := target/$(target)/debug/libjos.a
 
 linker_script := src/arch/$(arch)/linker.ld
 grub_cfg := src/arch/$(arch)/grub.cfg
@@ -47,4 +45,4 @@ build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.c
 	@mkdir -p $(shell dirname $@)
-	@gcc -c -m64 -std=gnu99 -ffreestanding -O2 -Wall -Wextra -c $< -o $@ 
+	@gcc -c -m64 -std=gnu99 -ffreestanding -O2 -Wall -Wextra -c $< -o $@

@@ -25,14 +25,7 @@ volatile char * video;
 int row,col;
 int color_FG, color_BG;
 
-typedef long long int64;
-typedef unsigned long long uint64;
-typedef long int32;
-typedef unsigned long uint32;
-typedef short int16;
-typedef unsigned short uint16;
-typedef char int8;
-typedef unsigned char uint8;
+#include "system.h"
 
 typedef struct registers
 {
@@ -142,7 +135,6 @@ void printf(const char * text){
 }
 
 void init_console(){
-
 	color_FG = VGA_COLOR_WHITE;
 	color_BG = VGA_COLOR_BLACK;
 	video = (volatile char *) 0xb8000;
@@ -150,7 +142,11 @@ void init_console(){
 	printf("console init complete\n");
 } 
 
+void interrupt(void);
+
 void main(){
+	idt_install();
+
 	init_console();	
 	printf("hey");
 	printf("hey");
