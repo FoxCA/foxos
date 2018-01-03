@@ -4,15 +4,15 @@
 #include <stdlib.h>
 
 void OS(){
-	char * buffer = ""; 
+	char * buf = ""; 
 	while(true){
 		char inp = getchar();
 		putchar(inp);
 		if (inp == '\n'){
-			puts(buffer);
-			buffer = "";
+			puts(buf);
+			buf = "";
 		}
-		buffer += inp;
+		buf += inp;
 	}
 }
 
