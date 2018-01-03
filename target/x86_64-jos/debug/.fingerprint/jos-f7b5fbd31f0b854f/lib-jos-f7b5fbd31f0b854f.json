@@ -1,1 +1,0 @@
-{"rustc":12678177627392365228,"features":"[]","target":3548847927119152699,"profile":731176819336294830,"deps":[["rlibc v1.0.0",5851906321682892954]],"local":[{"MtimeBased":[[1511795178,394617656],"/home/jonathan/Desktop/OS/target/x86_64-jos/debug/.fingerprint/jos-f7b5fbd31f0b854f/dep-lib-jos-f7b5fbd31f0b854f"]}],"rustflags":["--sysroot","/home/jonathan/.xargo"]}

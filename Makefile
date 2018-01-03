@@ -1,14 +1,22 @@
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso
+dirs = $(shell find src/arch/$(arch)/ -type d -print)
+includedirs :=  $(sort $(foreach dir, $(foreach dir1, $(dirs), $(shell dirname $(dir1))), $(wildcard $(dir)/include)))
+linker_script := src/arch/$(arch)/link.ld
+grub_cfg := src/arch/$(arch)/grub/menu.lst
 
-linker_script := src/arch/$(arch)/linker.ld
-grub_cfg := src/arch/$(arch)/grub.cfg
-assembly_source_files := $(wildcard src/arch/$(arch)/*.asm)
+CFLAGS= -m32 -Wall -O -fno-pie -fstrength-reduce -fomit-frame-pointer	\
+        -finline-functions -nostdinc -fno-builtin -ffreestanding		\
+        -c
+
+CFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
+
+assembly_source_files := $(foreach dir,$(dirs),$(wildcard $(dir)/*.asm))
 assembly_object_files := $(patsubst src/arch/$(arch)/%.asm, \
     build/arch/$(arch)/%.o, $(assembly_source_files))
 
-c_source_files := $(wildcard src/arch/$(arch)/*.c)
+c_source_files := $(foreach dir,$(dirs),$(wildcard $(dir)/*.c))
 c_object_files := $(patsubst src/arch/$(arch)/%.c, \
     build/arch/$(arch)/%.o, $(c_source_files))
 
@@ -20,7 +28,8 @@ clean:
 	@rm -r build
 
 run: $(iso)
-	@qemu-system-x86_64 -cdrom $(iso)
+	@echo starting emulator...
+	@qemu-system-x86_64 -cdrom $(iso) -no-reboot
 
 runv: $(iso)
 	@virtualbox $(iso)
@@ -28,21 +37,86 @@ runv: $(iso)
 iso: $(iso)
 
 $(iso): $(kernel) $(grub_cfg)
+	@echo generating iso file...
 	@mkdir -p build/isofiles/boot/grub
 	@cp $(kernel) build/isofiles/boot/kernel.bin
 	@cp $(grub_cfg) build/isofiles/boot/grub
-	@grub-mkrescue -o $(iso) build/isofiles 2> /dev/null
+	@cp src/arch/$(arch)/grub/stage2_eltorito build/isofiles/boot/grub
+	@mkisofs -R -b boot/grub/stage2_eltorito -no-emul-boot -quiet -input-charset utf8 -boot-load-size 4 -boot-info-table -o $(iso) build/isofiles
+	@cd - > /dev/null
 	@rm -r build/isofiles
 
 $(kernel): $(assembly_object_files) $(c_object_files) $(linker_script)
-	ld -n --gc-sections -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_object_files)
+	@echo $(CFLAGS)
+	@echo linking...
+	@ld -nostdlib -m elf_i386 -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_object_files)
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)
-	@nasm -i./src/arch/$(arch)/ -felf64 $< -o $@ 
+	@echo compiling $<
+	@nasm -i./src/arch/$(arch)/ -felf32 $< -o $@ 
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.c
 	@mkdir -p $(shell dirname $@)
-	@gcc -c -m64 -std=gnu99 -ffreestanding -O2 -Wall -Wextra -c $< -o $@
+	@echo compiling $<
+	@gcc $(CFLAGS) $< -o $@
+
+# arch ?= x86_64
+# kernel := build/kernel-$(arch).bin
+# iso := build/os-$(arch).iso
+# dirs := $(sort $(dir $(wildcard ./src/arch/$(arch)/*/)))
+
+# CFLAGS= -m32 -Wall -O -fno-pie -fstrength-reduce -fomit-frame-pointer \
+#         -finline-functions -nostdinc -fno-builtin -ffreestanding      \
+#         -I./src/arch/$(arch)/include -I./src/arch/$(arch)/misc/include\
+#         -c
+
+# linker_script := src/arch/$(arch)/link.ld
+# grub_cfg := src/arch/$(arch)/grub.cfg
+# assembly_source_files := $(wildcard src/arch/$(arch)/*.asm)
+# assembly_object_files := $(patsubst src/arch/$(arch)/%.asm, \
+#     build/arch/$(arch)/%.o, $(assembly_source_files))
+
+# c_source_files := $(foreach dir,$(dirs),$(wildcard $(dir)/*.c))
+# c_object_files := $(patsubst %.c,%.o,$(c_source_files))
+
+# .PHONY: all clean run iso
+
+# all: $(kernel)
+
+# clean:
+# 	@rm -r build
+
+# run: $(iso)
+# 	@qemu-system-x86_64 -cdrom $(iso)
+
+# runv: $(iso)
+# 	@virtualbox $(iso)
+
+# iso: $(iso)
+
+# $(iso): $(kernel) $(grub_cfg)
+# 	@mkdir -p build/isofiles/boot/grub
+# 	@cp $(kernel) build/isofiles/boot/kernel.bin
+# 	@cp $(grub_cfg) build/isofiles/boot/grub
+# 	# mkisofs -R -b boot/grub/stage2_eltorito -no-emul-boot -quiet	\
+# 	# -input-charset utf8												\
+# 	# -boot-load-size 4 -boot-info-table -o kernel.iso isodir			
+# 	@grub-mkrescue -o $(iso) build/isofiles 2> /dev/null
+# 	@rm -r build/isofiles
+
+# $(kernel): $(assembly_object_files) $(c_object_files) $(linker_script)
+# 	ld -nostdlib -m elf_i386 -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_object_files)
+
+# # compile assembly files
+# build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
+# 	@mkdir -p $(shell dirname $@)
+# 	nasm -i./src/arch/$(arch)/ -felf32 $< -o $@ 
+
+# # compile assembly files
+# build/arch/$(arch)/%.o: $(c_source_files)
+# 	@mkdir -p $(shell dirname $@)
+# 	gcc $(CFLAGS) $< -o $@
+
