@@ -4,15 +4,18 @@
 #include <stdlib.h>
 
 void OS(){
-	char * buf = ""; 
+	printf(0);
+	char buf[20] = "";
+	size_t len = strlen(buf);	 
 	while(true){
 		char inp = getchar();
 		putchar(inp);
 		if (inp == '\n'){
-			puts(buf);
-			buf = "";
+			printf(buf);
+			char buf[20] = "";
 		}
-		buf += inp;
+		buf[len++] = inp;
+		buf[len] = '\0';
 	}
 }
 

@@ -5,7 +5,7 @@
 
 /* -- Includes ------------------------------------------------- */
 #include <system.h>
-
+#include <stdarg.h>
 
 /* -- Defines -------------------------------------------------- */
 #define EOF 0
@@ -26,7 +26,7 @@ extern FILE *stdin;
 
 
 /* -- Prototypes ----------------------------------------------- */
-int printf(const char *format, ...);
+int printf(char *s, ...);
 
 FILE *fopen(const char *path, const char *mode);
 int fgetc(FILE *stream);
@@ -42,6 +42,7 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
 int putchar(int c);
 int getchar(void);
 
+char *itos(int i, char buffer[], int base);
 
 #endif
 

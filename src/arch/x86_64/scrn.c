@@ -67,6 +67,8 @@ void putch(char c)
             csr_x--;
             where = textmemptr + (csr_y * width + csr_x);
             *where = ' ' | att;
+        }else{
+            csr_y--;
         }
     }
 
