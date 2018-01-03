@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 void OS(){
-	printf(0);
+	// printf(0);
 	char buf[20] = "";
 	size_t len = strlen(buf);	 
 	while(true){
@@ -12,6 +12,7 @@ void OS(){
 		putchar(inp);
 		if (inp == '\n'){
 			printf(buf);
+			printf("\n");
 			char buf[20] = "";
 		}
 		buf[len++] = inp;

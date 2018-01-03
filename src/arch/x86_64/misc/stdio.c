@@ -19,7 +19,7 @@ int printf(char *s, ...) {
 
   for (int i = 0; s[i] != '\0'; i++) {
     if (s[i] == '\n') {
-      putchar("\n");
+      putchar('\n');
     } else if (s[i] != '%') {
       putchar(s[i]);
     } else {

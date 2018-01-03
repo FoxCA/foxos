@@ -64,7 +64,7 @@ void keyboard_handler(struct regs *r)
     else
     {
         /* Here, a key was just pressed. if a key is held down,
-        repeated key presses are registered
+        repeated key presses are registered*/
 
         /* Just to show you how this works, we simply translate
         *  the keyboard scancode into an ASCII value, and then

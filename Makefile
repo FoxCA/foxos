@@ -46,7 +46,6 @@ $(iso): $(kernel) $(grub_cfg)
 	@rm -r build/isofiles
 
 $(kernel): $(assembly_object_files) $(c_object_files) $(linker_script)
-	@echo $(CFLAGS)
 	@echo linking...
 	@ld -nostdlib -m elf_i386 -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_object_files)
 

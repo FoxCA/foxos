@@ -1,5 +1,6 @@
 
 #include <system.h>
+#include <paging.h>
 #include <unistd.h>
 
 void *memcpy(void *dest, const void *src, size_t count)
@@ -50,6 +51,7 @@ void main()
     idt_install();
     isrs_install();
     irq_install();
+    start_paging();
     init_video();
     timer_install();
     keyboard_install();
