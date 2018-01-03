@@ -9,7 +9,8 @@ void OS(){
 		char inp = getchar();
 		putchar(inp);
 		if (inp == '\n'){
-
+			puts(buffer);
+			buffer = "";
 		}
 		buffer += inp;
 	}

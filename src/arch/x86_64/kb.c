@@ -52,7 +52,7 @@ void keyboard_handler(struct regs *r)
     /* Read from the keyboard's data buffer */
     scancode = inportb(0x60);
 
-    puts(scancode);
+    // puts(scancode);
 
     /* Pass scan code to kb buffer */
     kb_buf_scan(scancode);
