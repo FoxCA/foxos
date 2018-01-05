@@ -51,11 +51,11 @@ void main()
     idt_install();
     isrs_install();
     irq_install();
-    start_paging();
     init_video();
+    start_paging();
     timer_install();
     keyboard_install();
-
+    // printf("hey");
     __asm__ __volatile__ ("sti");
 
     application_start();

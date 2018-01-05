@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <memory.h>
 
 void OS(){
 	// printf(0);
+	malloc();
 	char buf[20] = "";
 	size_t len = strlen(buf);	 
 	while(true){
