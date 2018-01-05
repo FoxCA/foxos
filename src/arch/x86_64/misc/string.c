@@ -4,8 +4,36 @@
 #include <string.h>
 #include <stdio.h>
 
+/* -- Internal Constants --------------------------------------- */
+#define ITOS_MAX_BUFFER 128
 
 /* -- Functions ------------------------------------------------ */
+
+char *itos(int i, char *buffer, int base) {
+  const char digits[17] = "0123456789abcdef";
+  char pt[ITOS_MAX_BUFFER];
+  char *p = &pt;
+
+  if (i < 0) {
+    *p++ = '-';
+    i *= -1;
+  }
+
+  int shifter = i;
+
+  do { //Find out the number of digits
+    ++p;
+    shifter /= base;
+  } while (shifter);
+  *p = '\0';
+  do { //Insert the digits into the new string one by one
+    *--p = digits[i%base];
+    i = i / base;
+  } while (i);
+
+  return buffer;
+}
+
 char *strcpy(char *dst, const char *src)
 {
   unsigned int i = 0;
@@ -43,4 +71,3 @@ int strcmp(const char *s1, const char *s2)
  }
  return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
-
