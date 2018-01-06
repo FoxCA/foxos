@@ -6,6 +6,22 @@ unsigned short *textmemptr;
 int attrib = 0x0F;
 int csr_x = 0, csr_y = 0;
 
+void set_csr_x(int x)
+{
+  csr_x = x;
+}
+
+void set_csr_y(int y)
+{
+  csr_y = y;
+}
+
+void set_csr_xy(int x, int y)
+{
+  csr_x = x;
+  csr_y = y;
+}
+
 void scroll(void)
 {
     unsigned blank, temp;
@@ -133,4 +149,3 @@ void init_video(void)
     textmemptr = (unsigned short *)0xB8000;
     cls();
 }
-
