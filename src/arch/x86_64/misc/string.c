@@ -9,6 +9,15 @@
 
 /* -- Functions ------------------------------------------------ */
 
+void nullString(char *s, int l) // Nulls a string given a &pointer and a length.
+{
+	for (int i = 0; i != l; i++)
+	{
+		*s = 0x00;
+		s++;
+	}
+}
+
 char *itos(int i, char *buffer, int base) {
   const char digits[17] = "0123456789abcdef";
   char pt[ITOS_MAX_BUFFER];
@@ -31,7 +40,7 @@ char *itos(int i, char *buffer, int base) {
     i = i / base;
   } while (i);
 
-  return buffer;
+  return strcpy(&buffer, &p);
 }
 
 char *strcpy(char *dst, const char *src)
@@ -70,4 +79,13 @@ int strcmp(const char *s1, const char *s2)
    s2++;
  }
  return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+}
+
+int stringlength(char *str)
+{
+	for (int i = 0;; i++)
+	{
+		if (str[i] == '\0') return i;
+	}
+	return 0; // Theoretically impossible, but better safe than sorry.
 }

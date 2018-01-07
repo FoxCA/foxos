@@ -8,7 +8,7 @@ grub_cfg := src/arch/$(arch)/grub/menu.lst
 
 CFLAGS= -m32 -Wall -O -fno-pie -fstrength-reduce -fomit-frame-pointer	\
         -finline-functions -nostdinc -fno-builtin -ffreestanding		\
-        -c
+        -fno-stack-protector -c
 
 CFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
 
@@ -53,11 +53,10 @@ $(kernel): $(assembly_object_files) $(c_object_files) $(linker_script)
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)
 	@echo compiling $<
-	@nasm -i./src/arch/$(arch)/ -felf32 $< -o $@ 
+	@nasm -i./src/arch/$(arch)/ -felf32 $< -o $@
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.c
 	@mkdir -p $(shell dirname $@)
 	@echo compiling $<
 	@gcc $(CFLAGS) $< -o $@
-

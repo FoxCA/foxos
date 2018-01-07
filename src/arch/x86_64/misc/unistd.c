@@ -23,13 +23,8 @@ void shutdown(void)
 
 void application_start(void)
 {
-
-  puts("");
-  puts("JOS made by jonay2000 and a lot of help from the community\n");
-  puts("Starting...\n");
-  puts("READY.\n");
-  OS();
+  printf("Fox Kernel v0.0.1 loaded.\n");
+  OS(); // "loaded" output handled by shell
 
   for(;;);
 }
-
