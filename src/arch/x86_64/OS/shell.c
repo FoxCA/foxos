@@ -43,6 +43,7 @@ int shell_start(void)
 
   while (main_process.loop)
   {
+    settextcolor(shell_foreground_colour, shell_background_colour);
     printf("> ");
     getline(input_p, 79);
     processInput(input_p);
@@ -61,10 +62,63 @@ void processInput(char *input)
   {
     printf("Fox v0.0.1 shell.\n");
     printf("help - Display this help page.\n");
-    printf("shutdown - Shut the computer down.\n");
+    printf("shutdown - Shut the computer down. You can also press [ESC]!\n");
     printf("? - Display this help page.\n");
-  } else if (starts_with(input, "shutdown"))
+    return;
+  }
+  else if (starts_with(input, "shutdown"))
   {
     shutdown();
+  }
+  else if (starts_with(input, "reboot"))
+  {
+    reboot();
+  }
+  else if (starts_with(input, "fox"))
+  {
+    printf("You have found the secret fox ASCII art! :D Enjoy!\n");
+    settextcolor(brown, black);
+    puts(fox_ascii_art); // puts, because malloc.. lel
+    settextcolor(white, black);
+    return;
+  }
+  else if (starts_with(input, "vgatest"))
+  {
+    char hex[16] = {
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
+
+    for (int i = 0; i != 15; i++)
+    {
+      for (int j = 0; j != 15; j++)
+      {
+        settextcolor((unsigned char)i, (unsigned char)j);
+        putchar(hex[i]);
+        putchar(hex[j]);
+        settextcolor(white, black);
+        putchar(' ');
+      }
+      putchar('\n');
+    }
+    return;
+  }
+  else if (starts_with(input, "clear"))
+  {
+    set_csr_xy(0, 0);
+    for (int i = 0; i <= 80*25; i++)
+    {
+      printf(" ");
+    }
+    set_csr_xy(0, 0);
+    return;
+  }
+  else if (starts_with(input, "color"))
+  {
+
+  }
+  else if (strcmp(input, " "))
+  {
+    printf("Unknown command.\n");
+    return;
   }
 }

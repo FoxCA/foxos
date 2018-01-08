@@ -1,4 +1,3 @@
-
 #ifndef __SYSTEM_H
 #define __SYSTEM_H
 
@@ -10,7 +9,7 @@ struct regs
     unsigned int gs, fs, es, ds;
     unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
     unsigned int int_no, err_code;
-    unsigned int eip, cs, eflags, useresp, ss;    
+    unsigned int eip, cs, eflags, useresp, ss;
 };
 
 /* MAIN.C */
@@ -21,12 +20,16 @@ extern size_t strlen(const char *str);
 extern unsigned char inportb (unsigned short _port);
 extern void outportb (unsigned short _port, unsigned char _data);
 
-/* CONSOLE.C */
+/* SCRN.C */
+extern void set_csr_x(int x);
+extern void set_csr_y(int y);
+extern void set_csr_xy(int x, int y);
 extern void init_video(void);
 extern int puts(char *text);
 extern void putch(char c);
 extern void cls();
 extern void move_csr(void);
+extern void settextcolor(unsigned char forecolor, unsigned char backcolor);
 
 /* GDT.C */
 extern void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned char access, unsigned char gran);
@@ -58,4 +61,3 @@ extern void sys_heap();
 extern void OS();
 
 #endif
-

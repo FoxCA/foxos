@@ -17,7 +17,7 @@ void reboot(void)
 
 void shutdown(void)
 {
-  reboot();
+  outportb(0xf4, 0x00);
 }
 
 
