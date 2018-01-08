@@ -112,10 +112,6 @@ void processInput(char *input)
     set_csr_xy(0, 0);
     return;
   }
-  else if (starts_with(input, "color"))
-  {
-
-  }
   else if (strcmp(input, " "))
   {
     printf("Unknown command.\n");
