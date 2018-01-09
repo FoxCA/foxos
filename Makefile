@@ -1,6 +1,7 @@
+version = 0.0.1
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
-iso := build/fox-$(arch).iso
+iso := build/fox-$(version)-$(arch).iso
 dirs = $(shell find src/arch/$(arch)/ -type d -print)
 includedirs :=  $(sort $(foreach dir, $(foreach dir1, $(dirs), $(shell dirname $(dir1))), $(wildcard $(dir)/include)))
 linker_script := src/arch/$(arch)/link.ld
