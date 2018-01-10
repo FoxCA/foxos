@@ -6,22 +6,29 @@
 
 #include <shell.h>
 
+/*
+ * This checks whether the input starts with a comparison string + ' '.
+ * The function returns an int value where 0 represents it doesn't start with the comparison string,
+ * and 1 if it does.
+ */
 int starts_with(char *s1, char* s2)
 {
-  int s1_len = strlen(s1);
+  int s1_len = strlen(s1); // Gets the length of the input strings
   int s2_len = strlen(s2);
 
-  if (s1_len < s2_len)
+  if (s1_len < s2_len) // If the comparison string is bigger than the input string, return 0
   {
     return 0;
   }
 
   for (int i = 0; s2[0] != '\0'; i++)
   {
-    if (s1[i] != s2[i]) return 0;
-    if (i+1 == s2_len) break;
+    if (s1[i] != s2[i]) return 0; // If the current char is not the same as the input string, s1 isn't starting with s2.
   }
-  return 1;
+
+  if (s1[s2_len] != ' ') return 0; // If the input string doesn't end with a space, it technically starts with s2, but not for our usage.
+
+  return 1; // Everything is fine!
 }
 
 /*
@@ -51,6 +58,11 @@ int shell_start(void)
   }
 
   return main_process.state;
+}
+
+void getInput(char *buffer, int buf_size)
+{
+  //TBD, branching...
 }
 
 /*

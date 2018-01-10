@@ -18,6 +18,7 @@ int starts_with(char *s1, char* s2);
 
 int shell_start(void);
 
+void getInput(char *buffer, int buf_size);
 void processInput(char *input);
 
 #endif

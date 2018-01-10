@@ -111,19 +111,6 @@ int putchar(int c)
   return c;
 }
 
-void getline(char *buffer, int buf_length)
-{
-  int in_char;
-  int i = 0;
-  while ((char)in_char != '\n' && i < buf_length)
-  {
-    in_char = getchar();
-    *buffer++ = (char)in_char;
-    i++;
-    putchar(in_char);
-  }
-}
-
 int getchar(void)
 {
   unsigned char ascii = 0;

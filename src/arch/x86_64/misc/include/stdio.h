@@ -40,7 +40,6 @@ long ftell(FILE *stream);
 size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
 
 int putchar(int c);
-void getline(char *buffer, int buf_length);
 int getchar(void);
 
 #endif
