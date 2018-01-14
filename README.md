@@ -8,7 +8,7 @@ Dependencies (Only \*nix systems, includes macOS, Windows will follow eventually
 - qemu\*
 - VirtualBox\*
 
-\* qemu and VirtualBox are optional, you can run it in any emulator or install it on your computer, see (Making the ISO)[#making-the-iso] for more information.
+\* qemu and VirtualBox are optional, you can run it in any emulator or install it on your computer, see [Making the ISO](#making-the-iso) for more information.
 
 ### Clone the repository
 
