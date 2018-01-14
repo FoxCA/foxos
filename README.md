@@ -46,4 +46,4 @@ To get the ISO, run
 $ make ISO
 ```
 
-Then, the ISO file will be in `build/` under the file name `fox-version-arch.iso`!
+Then, the ISO file will be in `build/` as `fox-version-arch.iso`!
