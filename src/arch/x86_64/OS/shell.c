@@ -6,21 +6,41 @@
 
 #include <shell.h>
 
+void getinput(char *buffer, int buf_length)
+{
+  int in_char;
+  int i = 0;
+  while (i < buf_length)
+  {
+    in_char = getchar();
+    if (in_char == '\n') {
+      *buffer == '\0';
+      putchar(in_char);
+      break;
+    }
+    else
+    {
+      *buffer++ = (char)in_char;
+    }
+    i++;
+    putchar(in_char);
+  }
+}
+
 int starts_with(char *s1, char* s2)
 {
-  int s1_len = strlen(s1);
-  int s2_len = strlen(s2);
+  int s1_len = stringlength(s1);
+  int s2_len = stringlength(s2);
 
-  if (s1_len < s2_len)
-  {
-    return 0;
-  }
-
-  for (int i = 0; s2[0] != '\0'; i++)
+  for (int i = 0; s2[i] != '\0'; i++)
   {
     if (s1[i] != s2[i]) return 0;
-    if (i+1 == s2_len) break;
+    if (i+1 == s1_len && i+1 < s2_len) return 0;
+    if (i+1 == s1_len && i+1 == s2_len) break;
   }
+
+  if (s1[s2_len] != '\0' && s1[s2_len] != ' ') return 0;
+
   return 1;
 }
 
@@ -45,7 +65,9 @@ int shell_start(void)
   {
     settextcolor(shell_foreground_colour, shell_background_colour);
     printf("> ");
-    getline(input_p, 79);
+    getinput(input_p, 79);
+    printf(input_p);
+    putchar('\n');
     processInput(input_p);
     nullString(input_p, 79);
   }

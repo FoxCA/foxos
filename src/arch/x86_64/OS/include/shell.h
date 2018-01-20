@@ -14,6 +14,8 @@ char fox_ascii_art[1209] = "                                                    
 unsigned char shell_foreground_colour = white;
 unsigned char shell_background_colour = black;
 
+void getinput(char *buffer, int buf_length);
+
 int starts_with(char *s1, char* s2);
 
 int shell_start(void);
