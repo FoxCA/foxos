@@ -45,7 +45,7 @@ char *itos(int i, char *buffer, int base) {
 
 char *strcpy(char *dst, const char *src)
 {
-  unsigned int i = 0;
+  unsigned int i;
   for(i=0; src[i] != 0; i++)
   {
     dst[i] = src[i];
