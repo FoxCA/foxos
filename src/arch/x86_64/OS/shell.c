@@ -185,15 +185,19 @@ void getinput(char *buffer, int buf_length)
     }
     else if (in_char == '\b')
     {
-      *(--buffer) = '\0';
-      putchar('\b');
+      if (i > 0)
+      {
+        *(--buffer) = '\0';
+        i--;
+        putchar('\b');
+      }
     }
     else
     {
       *buffer++ = (char)in_char;
+      putchar(in_char);
+      i++;
     }
-    i++;
-    putchar(in_char);
   }
 }
 
