@@ -106,7 +106,8 @@ void shell_kb_handler(unsigned char scancode)
     switch (input[1])
     {
       case '1':
-        processInput("help");
+        strcpy(irq_input_exec, "help");
+        keyboard_enqueue(1);
         break;
       case '2':
         main_process.loop = false;
@@ -128,56 +129,26 @@ void shell_kb_handler(unsigned char scancode)
       keyboard_enqueue(input[0]);
     }
   }
-
-  /*switch (scancode)
-  {
-    case 0x01: // [ESC]
-      main_process.loop = false;
-      shutdown();
-      break;
-    case 0x02: // [F1]
-      processInput("help");
-      break;
-    case 0x03: // [F2]
-      main_process.loop = false;
-      reboot();
-      break;
-    case 0x2a: // [LSHIFT] pressed
-    case 0x36: // [RSHIFT] pressed
-      shell_kb_shifted = 1;
-      break;
-    case 0xaa: // [LSHIFT] released
-    case 0xb6: // [RSHIFT] released
-      shell_kb_shifted = 0;
-      break;
-    default:
-      if (scancode & 0x80)
-      {
-        // No key release action for now.
-      }
-      else
-      {
-        if (shell_kb_shifted)
-        {
-          keyboard_enqueue(scan_US_shift[scancode]);
-        }
-        else
-        {
-          keyboard_enqueue(scan_US[scancode]);
-        }
-      }
-      break;
-  }*/
 }
 
-void getinput(char *buffer, int buf_length)
+int getinput(char *buffer, int buf_length)
 {
   int in_char;
   int i = 0;
   while (i < buf_length)
   {
     in_char = getchar();
-    if (in_char == '\n')
+    if (in_char == 1)
+    {
+      while (i > 0)
+      {
+        *(--buffer) = '\0';
+        i--;
+        putchar('\b');
+      }
+      return 0;
+    }
+    else if (in_char == '\n')
     {
       *buffer == '\0';
       putchar(in_char);
@@ -199,6 +170,7 @@ void getinput(char *buffer, int buf_length)
       i++;
     }
   }
+  return 1;
 }
 
 int starts_with(char *s1, char* s2)
@@ -235,15 +207,17 @@ int shell_start(void)
 
   set_kb_led(0, 7);
 
+  nullString(irq_input_exec, 32);
+
   printf("Fox v0.0.1 successfully loaded. Enter \"help\" or \"?\" for help.\n");
 
   while (main_process.loop)
   {
     settextcolor(shell_foreground_colour, shell_background_colour);
     printf("> ");
-    getinput(input_p, 79);
-    processInput(input_p);
-    nullString(input_p, 79);
+    int idk = getinput(input_p, 79);
+    processInput(idk == 0 ? irq_input_exec : input_p);
+    nullString(idk == 0 ? irq_input_exec : input_p, 79);
   }
 
   return main_process.state;
