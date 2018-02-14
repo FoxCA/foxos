@@ -190,6 +190,21 @@ int starts_with(char *s1, char* s2)
   return 1;
 }
 
+void malloctest(){
+  int i = 5;
+  int n;
+  char * buffer;
+
+  buffer = (char*) malloc (i+1);
+
+  for (n=0; n<i; n++)
+    buffer[n]=rand()%26+'a';
+  buffer[i]='\0';
+
+  printf ("Random string: %s\n",buffer);
+  free (buffer);
+}
+
 /*
  * This is the main shell function called by the OS loader.
  * It returns an int value, which represents an error code.
@@ -282,6 +297,8 @@ void processInput(char *input)
     }
     set_csr_xy(0, 0);
     return;
+  }else if(starts_with(input, "memtest")){
+    malloctest();
   }
   else if (strcmp(input, " "))
   {

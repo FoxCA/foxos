@@ -1,5 +1,5 @@
-#ifndef JOS_STDINT_LIB_H
-#define JOS_STDINT_LIB_H
+#ifndef FOX_STDINT_LIB_H
+#define FOX_STDINT_LIB_H
 
 /* stdbool.h */
 
@@ -141,3 +141,6 @@ typedef unsigned long long size_t;
 #define INTMAX_MIN        (-0x7fffffffffffffff - 1)
 #define INTMAX_MAX        0x7fffffffffffffff
 #define UINTMAX_MAX       0xffffffffffffffff
+
+
+#endif
