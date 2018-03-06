@@ -1,4 +1,4 @@
-version = 0.0.1
+version = 0.0.2
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/fox-$(version)-$(arch).iso
