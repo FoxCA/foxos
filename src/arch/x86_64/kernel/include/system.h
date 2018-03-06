@@ -1,7 +1,7 @@
 #ifndef __SYSTEM_H
 #define __SYSTEM_H
+#include <types.h>
 
-typedef unsigned int size_t;
 
 /* This defines what the stack looks like after an ISR was running */
 struct regs

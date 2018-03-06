@@ -6,6 +6,200 @@
 
 #include <shell.h>
 
+char fox_ascii_art[1209] = "                                                                    ,-,\n                                                              _.-=;~ /_\n                                                           _-~   '     ;.\n                                                       _.-~     '   .-~-~`-._\n                                                 _.--~~:.             --.____88\n                               ____.........--~~~. .' .  .        _..-------~~\n                      _..--~~~~               .' .'             ,'\n                  _.-~                        .       .     ` ,'\n                .'                                    :.    ./\n              .:     ,/          `                   ::.   ,'\n            .:'     ,(            ;.                ::. ,-'\n           .'     ./'.`.     . . /:::._______.... _/:.o/\n          /     ./'. . .)  . _.,'               `88;?88|\n        ,'  . .,/'._,-~ /_.o8P'                  88P ?8b\n     _,'' . .,/',-~    d888P'                    88'  88|\n _.'~  . .,:oP'        ?88b              _..--- 88.--'8b.--..__\n :     ...' 88o __,------.88o ...__..._.=~- .    `~~   `~~      ~-._ Seal _\n `.;;;:='    ~~            ~~~                ~-    -       -   -\n";
+
+unsigned char shell_foreground_colour = white;
+unsigned char shell_background_colour = black;
+
+unsigned char kb_leds = 0;
+char shell_kb_shifted = 0;
+char shell_kb_caps = 0;
+
+int offset_write = 0;
+int offset_read = 0;
+
+char shell_scan_US[128][11] =
+{
+  "",
+  "escape", // 0x01
+  "1", // 0x02
+  "2", // ...
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "0",
+  "-",
+  "=",
+  "backspace",
+  "tab",
+  "q",
+  "w",
+  "e",
+  "r",
+  "t",
+  "y",
+  "u",
+  "i",
+  "o",
+  "p",
+  "[",
+  "]",
+  "enter",
+  "lctrl",
+  "a",
+  "s",
+  "d",
+  "f",
+  "g",
+  "h",
+  "j",
+  "k",
+  "l",
+  ";",
+  "\'",
+  "`",
+  "lshift",
+  "\\",
+  "z",
+  "x",
+  "c",
+  "v",
+  "b",
+  "n",
+  "m",
+  ",",
+  ".",
+  "/",
+  "rshift",
+  "keypad*",
+  "lalt",
+  "space",
+  "capslock",
+  "f1",
+  "f2",
+  "f3",
+  "f4",
+  "f5",
+  "f6",
+  "f7",
+  "f8",
+  "f9",
+  "f10",
+  "numlock",
+  "scrolllock",
+  "keypad7",
+  "keypad8",
+  "keypad9",
+  "keypad-",
+  "keypad4",
+  "keypad5",
+  "keypad6",
+  "keypad+",
+  "keypad1",
+  "keypad2",
+  "keypad3",
+  "keypad0",
+  "keypad.",
+  "", "", "",
+  "f11",
+  "f12"
+};
+
+char shell_scan_shift_US[128] =
+{
+  0, 0,
+  '!',
+  '@',
+  '#',
+  '$',
+  '%',
+  '^',
+  '&',
+  '*',
+  '(',
+  ')',
+  '_',
+  '+',
+  0, 0,
+  'Q',
+  'W',
+  'E',
+  'R',
+  'T',
+  'Y',
+  'U',
+  'I',
+  'O',
+  'P',
+  '{',
+  '}',
+  0, 0,
+  'A',
+  'S',
+  'D',
+  'F',
+  'G',
+  'H',
+  'J',
+  'K',
+  'L',
+  ':',
+  '"',
+  '~',
+  0,
+  '|',
+  'Z',
+  'X',
+  'C',
+  'V',
+  'B',
+  'N',
+  'M',
+  '<',
+  '>',
+  '?'
+};
+
+
+void shell_kb_handler(unsigned char scancode)
+{
+  #pragma fallthrough
+  switch (scancode)
+  {
+    case 0x2a: // LSHIFT pressed
+    case 0x36: // RSHIFT pressed
+      shell_kb_shifted = 1;
+      return;
+    case 0xaa: // LSHIFT released
+    case 0xb6: // RSHIFT released
+      shell_kb_shifted = 0;
+      return;
+    case 0x01: // ESC pressed
+      shutdown();
+      return; // As if this is needed.
+    case 0x3b: // F1 (Help)
+      nullString(kb_buf, 128);
+      processInput("help");
+      return;
+    case 0x3c: // F2 (Restart)
+      reboot();
+      return; // As if v2.0 xd
+  }
+  if (population_count == 128)
+  {
+    printf("Something went terribly wrong. The keyboard buffer is about to overflow!\n");
+    printf("Ima panic now.\n");
+    while(1);
+  }
+  if (offset_write == 127)
+    offset_write = 0;
+  kb_buf[127-offset_write] = scancode;
+}
+
 /*
  * This checks whether the input starts with a comparison string + ' '.
  * The function returns an int value where 0 represents it doesn't start with the comparison string,
@@ -52,7 +246,7 @@ int shell_start(void)
   {
     settextcolor(shell_foreground_colour, shell_background_colour);
     printf("> ");
-    getline(input_p, 79);
+    getInput(input_p, 79);
     processInput(input_p);
     nullString(input_p, 79);
   }
@@ -60,9 +254,31 @@ int shell_start(void)
   return main_process.state;
 }
 
+/*
+ * This function fetches user input given a buffer pointer and a buffer size.
+ */
 void getInput(char *buffer, int buf_size)
 {
-  //TBD, branching...
+  unsigned char currchar;
+  unsigned int counter = 0;
+
+  while (1)
+  {
+    currchar = getchar();
+    counter++;
+    if (counter > buf_size || currchar == '\n')
+    {
+      putchar('\n');
+      return;
+    }
+    if (currchar == '\b')
+    {
+      buffer--;
+      continue;
+    }
+    *(buffer++) = currchar;
+    putchar(currchar);
+  }
 }
 
 /*

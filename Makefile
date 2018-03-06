@@ -25,16 +25,22 @@ c_object_files := $(patsubst src/arch/$(arch)/%.c, \
 
 all: $(kernel)
 
+install:
+	@sudo apt-get install qemu nasm
+
+install-all:
+	@sudo apt-get install qemu nasm virtualbox
+
 clean:
 	@rm -r build
 
 run: $(iso)
 	@echo starting emulator...
-	@qemu-system-x86_64 -cdrom $(iso) -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04
+	@qemu-system-x86_64 -m 400M -cdrom $(iso) -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04
 
 runrel: $(iso)
 	@echo starting emulator...
-	@qemu-system-x86_64 -cdrom $(iso) -device isa-debug-exit,iobase=0xf4,iosize=0x04
+	@qemu-system-x86_64  -m 65536k -cdrom $(iso) -device isa-debug-exit,iobase=0xf4,iosize=0x04
 
 runv: $(iso)
 	@virtualbox $(iso)
@@ -52,7 +58,7 @@ $(iso): $(kernel) $(grub_cfg)
 
 $(kernel): $(assembly_object_files) $(c_object_files) $(linker_script)
 	@echo linking...
-	@ld -nostdlib -m elf_i386 -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_object_files)
+	@ld -m -nostdlib -m elf_i386 -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_object_files)
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
