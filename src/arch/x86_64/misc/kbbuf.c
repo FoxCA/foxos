@@ -93,9 +93,10 @@ static unsigned char scan_to_ascii_US_shift[128] =
   0,	/* All others undefined */
 };
 
-void (*kb_handler)(unsigned char scancode) = &kb_buf_standard;
+void (*kb_handler)(unsigned char scancode) = kb_buf_standard;
 
 /* -- Functions ------------------------------------------------ */
+
 void kb_buf_init()
 {
   keyboard_buffer.head = keyboard_buffer.buf;
@@ -109,7 +110,7 @@ void reset_kb_handler(void)
 
 void set_kb_handler(void (*handler)(unsigned char scancode))
 {
-  kb_handler = &handler;
+  kb_handler = handler;
 }
 
 void kb_buf_scan(unsigned char scancode)

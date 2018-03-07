@@ -19,8 +19,19 @@ unsigned char shell_background_colour;
 state main_process;
 
 unsigned char kb_leds;
-char shell_kb_shifted;
-char shell_kb_caps;
+bool kb_led_numlock;
+bool kb_led_caps;
+bool kb_led_scroll;
+
+bool shell_kb_shifted;
+bool shell_kb_caps;
+
+void change_caps_led(bool status);
+void change_numlock_led(bool status);
+void change_scroll_led(bool status);
+
+void kb_ack(void);
+void kb_update_leds(void);
 
 char kb_buf[128];
 int offset_write;
@@ -29,14 +40,14 @@ int population_count;
 
 char irq_input_exec[32];
 
-char shell_scan_US[128][11];
+char shell_scan_US[128];
 
 char shell_scan_shift_US[128];
 
 void change_kb_led(unsigned char index, unsigned char value);
 void shell_kb_handler(unsigned char scancode);
 
-int getinput(char *buffer, int buf_length);
+void getInput(char *buffer, int buf_length);
 
 int starts_with(char *s1, char* s2);
 

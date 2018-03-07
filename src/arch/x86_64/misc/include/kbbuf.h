@@ -2,6 +2,7 @@
 #ifndef __KBBUF_H__
 #define __KBBUF_H__
 
+#include <stdbool.h>
 
 /* -- Defines -------------------------------------------------- */
 #define KEYBUFSIZ 64
