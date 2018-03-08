@@ -232,6 +232,8 @@ void shell_kb_handler(unsigned char scancode)
 {
   switch (scancode)
   {
+    case 0x00:
+      return;
     case 0xff: // A keyboard fuckup
       putchar('\b');
       return;
@@ -292,8 +294,10 @@ void shell_kb_handler(unsigned char scancode)
   {
     kb_buf[127-offset_write] = shell_scan_shift_US[scan_keymap_index];
   }
-  
-  kb_buf[127-offset_write] = shell_scan_US[scancode & 0b01111111];
+  else
+  {
+    kb_buf[127-offset_write] = shell_scan_US[scancode & 0b01111111];
+  }
   offset_write++;
 }
 
@@ -336,6 +340,7 @@ int shell_start(void)
   main_process.loop = true;
   char *input_p = main_process.input;
   nullString(input_p, 79);
+  change_caps_led(true);
 
   printf("Fox v0.0.1 successfully loaded. Enter \"help\" or \"?\" for help.\n");
 
@@ -363,7 +368,32 @@ int shell_start(void)
  */
 void getInput(char *buffer, int buf_size)
 {
+  int counter = 0;
+  char c;
   
+  while (counter < buf_size)
+  {
+    if (population_count == 0)
+      continue;
+    
+    if (offset_read == 128)
+      offset_read = 0;
+    
+    c = kb_buf[offset_read];
+    kb_buf[offset_read] = 0x00;
+    offset_read++;
+    
+    if (c == '\n')
+    {
+      *buffer = 0x00;
+      return;
+    }
+    else
+    {
+      *(buffer++) = c;
+      population_count--;
+    }
+  }
 }
 
 /*
