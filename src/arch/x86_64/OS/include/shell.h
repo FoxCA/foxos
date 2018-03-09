@@ -33,10 +33,7 @@ void change_scroll_led(bool status);
 void kb_ack(void);
 void kb_update_leds(void);
 
-char kb_buf[128];
-int offset_write;
-int offset_read;
-int population_count;
+bool halt_read;
 
 char irq_input_exec[32];
 

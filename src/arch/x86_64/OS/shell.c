@@ -249,10 +249,11 @@ void shell_kb_handler(unsigned char scancode)
       shutdown();
       return; // As if this is needed.
     case 0x3b: // F1 (Help)
-      nullString(kb_buf, 128);
+      halt_read = true;
       processInput("help");
       return;
     case 0x3c: // F2 (Restart)
+      halt_read = true;
       reboot();
       return; // As if v2.0 xd
     case 0x3a: // Caps pressed
@@ -273,16 +274,6 @@ void shell_kb_handler(unsigned char scancode)
       break;
   }
   
-  if (population_count == 128)
-  {
-    printf("Something went terribly wrong. The keyboard buffer is about to overflow!\n");
-    printf("Ima panic now.\n");
-    while(1);
-  }
-  
-  if (offset_write == 128) // 128 == 0 in this case, aka. When the write offset reaches 128, it wraps.
-    offset_write = 0;
-  
   unsigned char scan_keymap_index = scancode & 0b01111111; // The keymap scan index (with the potential released flag bit removed).
   
   if ((scancode & 0b10000000) > 0) // Is the released flag bit set? 0bXyyyyyyy X = flag, y = scancode
@@ -292,13 +283,12 @@ void shell_kb_handler(unsigned char scancode)
   
   if (shell_kb_caps || shell_kb_shifted)
   {
-    kb_buf[127-offset_write] = shell_scan_shift_US[scan_keymap_index];
+    keyboard_enqueue(shell_scan_shift_US[scan_keymap_index]);
   }
   else
   {
-    kb_buf[127-offset_write] = shell_scan_US[scancode & 0b01111111];
+    keyboard_enqueue(shell_scan_US[scan_keymap_index]);
   }
-  offset_write++;
 }
 
 /*
@@ -341,7 +331,9 @@ int shell_start(void)
   char *input_p = main_process.input;
   nullString(input_p, 79);
   change_caps_led(true);
-
+  
+  set_kb_handler(&shell_kb_handler);
+  
   printf("Fox v0.0.1 successfully loaded. Enter \"help\" or \"?\" for help.\n");
 
   while (main_process.loop)
@@ -373,26 +365,28 @@ void getInput(char *buffer, int buf_size)
   
   while (counter < buf_size)
   {
-    if (population_count == 0)
+    if (halt_read)
+    {
+      halt_read = false;
+      nullString(buffer, buf_size);
+      putchar('\n');
+      return;
+    }
+    
+    c = keyboard_dequeue();
+    
+    if (c == 0x00)
       continue;
-    
-    if (offset_read == 128)
-      offset_read = 0;
-    
-    c = kb_buf[offset_read];
-    kb_buf[offset_read] = 0x00;
-    offset_read++;
     
     if (c == '\n')
     {
+      putchar(c);
       *buffer = 0x00;
       return;
     }
-    else
-    {
-      *(buffer++) = c;
-      population_count--;
-    }
+    
+    *(buffer++) = c;
+    putchar(c);
   }
 }
 
