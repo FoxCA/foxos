@@ -1,16 +1,6 @@
 
 
-#ifndef __STDLIB_H__
-#define __STDLIB_H__
-
-
-/* -- Includes ------------------------------------------------- */
-#include <system.h>
-
-
-/* -- Prototypes ----------------------------------------------- */
-#include <heap.h>
-
+unsigned long int rand_next = 1;
 
 /*
  *  int rand()
@@ -19,14 +9,17 @@
  *      this is compatible with the System V function rand(), not
  *      with the bsd function rand() that returns 0..(2**31)-1.
  */
-int rand ();
+int rand (){
+	rand_next = rand_next * 1103515245 + 12345;
+	return ((unsigned int)(rand_next / 65536) % 32768);
+}
 
 /*
  *  srand(seed)
  *      companion routine to rand(). Initializes the seed.
  */
-void srand(unsigned int seed);
-
-
-#endif
-
+void
+srand(unsigned int seed)
+{
+	rand_next = seed;
+}

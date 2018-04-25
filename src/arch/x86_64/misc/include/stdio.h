@@ -6,6 +6,7 @@
 /* -- Includes ------------------------------------------------- */
 #include <system.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 /* -- Defines -------------------------------------------------- */
 #define EOF 0
@@ -18,8 +19,7 @@
 
 /* -- Types ---------------------------------------------------- */
 typedef void FILE;
-typedef unsigned int size_t;
-
+#include <types.h>
 
 /* -- Globals -------------------------------------------------- */
 extern FILE *stdin;

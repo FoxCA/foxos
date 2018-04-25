@@ -93,16 +93,32 @@ static unsigned char scan_to_ascii_US_shift[128] =
   0,	/* All others undefined */
 };
 
+void (*kb_handler)(unsigned char scancode) = kb_buf_standard;
 
 /* -- Functions ------------------------------------------------ */
+
 void kb_buf_init()
 {
   keyboard_buffer.head = keyboard_buffer.buf;
-  keyboard_buffer.tail = keyboard_buffer.buf;  
+  keyboard_buffer.tail = keyboard_buffer.buf;
 }
 
+void reset_kb_handler(void)
+{
+  kb_handler = &kb_buf_standard;
+}
+
+void set_kb_handler(void (*handler)(unsigned char scancode))
+{
+  kb_handler = handler;
+}
 
 void kb_buf_scan(unsigned char scancode)
+{
+  (*kb_handler)(scancode);
+}
+
+void kb_buf_standard(unsigned char scancode)
 {
   static unsigned char shifted = 0;
 
@@ -128,7 +144,7 @@ void kb_buf_scan(unsigned char scancode)
     case 0x50: /* Down */
       move_csr_offset(0, 1);
       break;
-      
+
     case 0x2A: /* LShift pressed */
     case 0x36: /* Rshift pressed */
       shifted = 1;
@@ -138,7 +154,7 @@ void kb_buf_scan(unsigned char scancode)
     case 0xB6: /* Rshift released */
       shifted = 0;
       break;
-      
+
     default:   /* All others */
       if(scancode & 0x80)
       {
@@ -233,4 +249,3 @@ void move_csr_offset(int x, int y)
 
   move_csr();
 }
-
