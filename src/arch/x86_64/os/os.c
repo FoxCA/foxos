@@ -1,7 +1,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <shell.h>
+// foxos
+#include <kcll/kcll.h>
 #include <structs.h>
 
 void os(){
