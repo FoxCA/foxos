@@ -26,6 +26,7 @@ int printf(char *s, ...) {
     } else if (*s != '%') {
       putchar(*s);
     } else {
+      s++;
       switch (*s) {
         case '\0':
           break; //Protection

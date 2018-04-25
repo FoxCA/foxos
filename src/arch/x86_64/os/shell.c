@@ -463,7 +463,8 @@ void processInput(char *input)
   else if(starts_with(input,"test")){
     PANIC("test");
   }else if(starts_with(input,"time")){
-    printf("%i\n",timer_get_time_since_boot());
+    printf("time since boot (seconds):%i",timer_get_time_since_boot());
+    printf("\n");
   }
   else
   {
