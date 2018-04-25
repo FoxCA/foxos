@@ -9,7 +9,6 @@
 #include <system.h>
 #include <vga.h>
 #include <kbbuf.h>
-#include <heap.h>
 
 char fox_ascii_art[1209];
 

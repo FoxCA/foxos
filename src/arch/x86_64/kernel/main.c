@@ -1,7 +1,7 @@
 
 #include <system.h>
-#include <paging.h>
 #include <unistd.h>
+#include <paging.h>
 
 #include <string.h>
 
@@ -47,7 +47,7 @@ void main()
     isrs_install();
     irq_install();
     init_video();
-    //start_paging();
+    initialize_paging();
     timer_install();
     keyboard_install();
     __asm__ __volatile__ ("sti");

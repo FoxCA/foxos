@@ -461,7 +461,7 @@ void processInput(char *input)
     return;
   }
   else if(starts_with(input,"test")){
-
+    abort();
   }
   else
   {

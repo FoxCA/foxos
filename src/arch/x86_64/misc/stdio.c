@@ -4,6 +4,7 @@
 #include <kbbuf.h>
 #include <stdio.h>
 #include <string.h>
+#include <types.h>
 
 
 /* -- Globals -------------------------------------------------- */
@@ -47,6 +48,11 @@ int printf(char *s, ...) {
           itos(va_arg(valist, int), buffer, 16);
           puts(buffer);
           s++;
+          break;
+        case 'p':
+          itos((uint32_t)va_arg(valist, void *), buffer, 16);
+          puts(buffer);
+          s++;         
           break;
         case '%': //%
           puts("%%");
@@ -124,4 +130,35 @@ int getchar(void)
     ascii = keyboard_dequeue();
   }
   return ascii;
+}
+
+
+void panic(const char* message, const char* file, uint32_t line)
+{
+  asm volatile ("cli");
+
+  printf("PANIC(");
+  printf(message);
+  printf(") at ");
+  printf(file);
+  printf(":");
+  printf("%i",line);
+  printf("\n");
+
+  for (;;);
+}
+
+void panic_assert(const char* file, uint32_t line, const char* desc)
+{
+  asm volatile ("cli");
+
+  printf("ASSERTION-FAILED(");
+  printf(desc);
+  printf(") at ");
+  printf(file);
+  printf(":");
+  printf("%i",line);
+  printf("\n");
+
+  for (;;);
 }
