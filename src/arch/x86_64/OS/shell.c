@@ -298,20 +298,31 @@ void shell_kb_handler(unsigned char scancode)
  */
 int starts_with(char *s1, char* s2)
 {
-  int s1_len = strlen(s1); // Gets the length of the input strings
-  int s2_len = strlen(s2);
+  if(strncmp(s1, s2, strlen(s2)) == 0){
+    return 1;
+  };
+  return 0;
+  //old startswith (before strncmp)
+  // int s1_len = strlen(s1); // Gets the length of the input strings
+  // int s2_len = strlen(s2);
 
-  if (s1_len < s2_len) // If the comparison string is bigger than the input string, return 0
-  {
-    return 0;
-  }
 
-  for (int i = 0; s2[0] != '\0'; i++)
-  {
-    if (s1[i] != s2[i]) return 0; // If the current char is not the same as the input string, s1 isn't starting with s2.
-  }
+  // if (s1_len < s2_len) // If the comparison string is bigger than the input string, return 0
+  // {
+  //   return 0;
+  // }
 
-  if (s1[s2_len] != ' ') return 0; // If the input string doesn't end with a space, it technically starts with s2, but not for our usage.
+  // for (int i = 0; s2[0] != '\0'; i++)
+  // {
+  //   printf(s1[i]);
+  //   printf(s2[i]);
+  //   printf(">");
+  //   if (s1[i] != s2[i]) {
+  //     return 0; // If the current char is not the same as the input string, s1 isn't starting with s2.
+  //   }
+  // }
+
+  // if (s1[s2_len] != ' ') return 0; // If the input string doesn't end with a space, it technically starts with s2, but not for our usage.
 
   return 1; // Everything is fine!
 }
@@ -449,7 +460,10 @@ void processInput(char *input)
     set_csr_xy(0, 0);
     return;
   }
-  else if (strcmp(input, " "))
+  else if(starts_with(input,"test")){
+
+  }
+  else
   {
     printf("Unknown command.\n");
     return;

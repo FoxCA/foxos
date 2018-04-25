@@ -1,339 +1,590 @@
-/*
-  Linked List Bucket Heap 2013 Goswin von Brederlow <goswin-v-b@web.de>
+// #include <string.h>
+// #include <stdio.h>
+// #include <paging.h>
+// #include <kheap.h>
+// #include <system.h>
+// #include <math.h>
 
-*/
-/*#include <stdio.h>
-#include <types.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+// // Global Var
 
-typedef struct DList DList;
-struct DList {
-    DList *next;
-    DList *prev;
-};
+// struct Block * head = NULL;       // First memory block
+// struct Block * tail = NULL;   // Last memory block
+// struct Block * freelist = NULL;   // All the memory blocks that are freed
 
-// initialize a one element DList
-static inline void dlist_init(DList *dlist) {
-  //printf("%s(%p)\n", __FUNCTION__, dlist);
-    dlist->next = dlist;
-    dlist->prev = dlist;
-}
 
-// insert d2 after d1
-static inline void dlist_insert_after(DList *d1, DList *d2) {
-  //printf("%s(%p, %p)\n", __FUNCTION__, d1, d2);
-    DList *n1 = d1->next;
-    DList *e2 = d2->prev;
+// void * heap_start;    // Where heap starts (must be page-aligned)
+// void * heap_end;      // Where heap ends (must be page-aligned)
+// void * heap_curr;     // Top of heap
+// void * heap_max;      // Maximum heap_end
 
-    d1->next = d2;
-    d2->prev = d1;
-    e2->next = n1;
-    n1->prev = e2;
-}
+// int kheap_enabled = 0;
+// // Defined in paging.c
+// extern page_directory_t *kpage_dir;
 
-// insert d2 before d1
-static inline void dlist_insert_before(DList *d1, DList *d2) {
-  //printf("%s(%p, %p)\n", __FUNCTION__, d1, d2);
-    DList *e1 = d1->prev;
-    DList *e2 = d2->prev;
+// // Defined in link.ld, end of kernel executable, aka. all the memory you can use
+// extern uint32_t end;
 
-    e1->next = d2;
-    d2->prev = e1;
-    e2->next = d1;
-    d1->prev = e2;
-}
+// // Defined in kheap.h
+// extern void * heap_start, * heap_end, * heap_max, * heap_curr;
 
-// remove d from the list
-static inline void dlist_remove(DList *d) {
-  //printf("%s(%p)\n", __FUNCTION__, d);
-    d->prev->next = d->next;
-    d->next->prev = d->prev;
-    d->next = d;
-    d->prev = d;
-}
+// uint32_t placement_address = (uint32_t)&end;
 
-// push d2 to the front of the d1p list
-static inline void dlist_push(DList **d1p, DList *d2) {
-  //printf("%s(%p, %p)\n", __FUNCTION__, d1p, d2);
-    if (*d1p != NULL) {
-  dlist_insert_before(*d1p, d2);
-    }
-    *d1p = d2;
-}
+// void * kmalloc_cont(uint32_t sz, int align, uint32_t *phys) {
 
-// pop the front of the dp list
-static inline DList * dlist_pop(DList **dp) {
-  //printf("%s(%p)\n", __FUNCTION__, dp);
-    DList *d1 = *dp;
-    DList *d2 = d1->next;
-    dlist_remove(d1);
-    if (d1 == d2) {
-  *dp = NULL;
-    } else {
-  *dp = d2;
-    }
-    return d1;
-}
+//     if (align == 1 && (placement_address & 0xFFFFF000) )
+//     {
+//         // Align the placement address;
+//         placement_address &= 0xFFFFF000;
+//         placement_address += 0x1000;
+//     }
+//     if (phys)
+//     {
+//         *phys = placement_address;
+//     }
+//     uint32_t tmp = placement_address;
+//     placement_address += sz;
+//     return (void*)tmp;
 
-// remove d2 from the list, advancing d1p if needed
-static inline void dlist_remove_from(DList **d1p, DList *d2) {
-  //printf("%s(%p, %p)\n", __FUNCTION__, d1p, d2);
-    if (*d1p == d2) {
-  dlist_pop(d1p);
-    } else {
-  dlist_remove(d2);
-    }
-}
+// }
+// /*
+//    kmalloc wrapper
+//    when heap is not created, use a placement memory allocator
+//    when heap is created, use malloc(), the dynamic memory allocator
+// align: return a page-aligned memory block
+// phys: return the physical address of the memory block
+// */
+// uint32_t kmalloc_int(uint32_t sz, int align, uint32_t *phys)
+// {
+//     if (heap_start != NULL)
+//     {
+//         // This will guarantee a block that's enough for data of size sz and aligned to 4kb boundary
+//         if(align) sz = sz + 4096;
+//         void * addr = malloc(sz);
+//         uint32_t align_addr = ((uint32_t)addr & 0xFFFFF000) + 0x1000;
+//         if (phys != 0)
+//         {
+//             /*
+//             page_t *page = get_page(align_addr, 0, kernel_directory);
+//             *phys = page->frame*0x1000 + (align_addr & 0xFFF);
+//             */
+//             uint32_t t = (uint32_t)addr;
+//             if(align)
+//                 t = align_addr;
+//              *phys = (uint32_t)virtual2phys(kpage_dir, (void*)t);
 
-#define CONTAINER(C, l, v) ((C*)(((char*)v) - (intptr_t)&(((C*)0)->l)))
-#define OFFSETOF(TYPE, MEMBER)  __builtin_offsetof (TYPE, MEMBER)
+//         }
+//         // Return the aligned address
+//         if(align)
+//             return align_addr;
+//         return (uint32_t)addr;
+//     }
+//     else
+//     {
+//         if (align == 1 && (placement_address & 0xFFFFF000) )
+//         {
+//             // Align the placement address;
+//             placement_address &= 0xFFFFF000;
+//             placement_address += 0x1000;
+//         }
+//         if (phys)
+//         {
+//             *phys = placement_address;
+//         }
+//         uint32_t tmp = placement_address;
+//         placement_address += sz;
+//         return tmp;
+//     }
+// }
 
-#define DLIST_INIT(v, l) dlist_init(&v->l)
+// /*
+//    kmalloc, align
+//    */
+// void * kmalloc_a(uint32_t sz)
+// {
+//     return kmalloc_int(sz, 1, 0);
+// }
 
-#define DLIST_REMOVE_FROM(h, d, l)          \
-    {                 \
-  typeof(**h) **h_ = h, *d_ = d;          \
-  DList *head = &(*h_)->l;          \
-  dlist_remove_from(&head, &d_->l);         \
-  if (head == NULL) {           \
-      *h_ = NULL;             \
-  } else {              \
-      *h_ = CONTAINER(typeof(**h), l, head);      \
-  }               \
-    }
+// /*
+//    kmalloc, get physical address
+//    */
+// uint32_t kmalloc_p(uint32_t sz, uint32_t *phys)
+// {
+//     return kmalloc_int(sz, 0, phys);
+// }
 
-#define DLIST_PUSH(h, v, l)           \
-    {                 \
-  typeof(*v) **h_ = h, *v_ = v;         \
-  DList *head = &(*h_)->l;          \
-  if (*h_ == NULL) head = NULL;         \
-  dlist_push(&head, &v_->l);          \
-  *h_ = CONTAINER(typeof(*v), l, head);       \
-    }
+// /*
+//    kmalloc, align and get physical address
+//    */
+// uint32_t kmalloc_ap(uint32_t sz, uint32_t *phys)
+// {
+//     return kmalloc_int(sz, 1, phys);
+// }
 
-#define DLIST_POP(h, l)             \
-    ({                  \
-  typeof(**h) **h_ = h;           \
-  DList *head = &(*h_)->l;          \
-  DList *res = dlist_pop(&head);          \
-  if (head == NULL) {           \
-      *h_ = NULL;             \
-  } else {              \
-      *h_ = CONTAINER(typeof(**h), l, head);      \
-  }               \
-  CONTAINER(typeof(**h), l, res);         \
-    })
+// /*
+//    just malloc
+//    */
+// void * kmalloc(uint32_t sz)
+// {
+//     return (void*)kmalloc_int(sz, 0, 0);
+// }
 
-#define DLIST_ITERATOR_BEGIN(h, l, it)          \
-    {                 \
-        typeof(*h) *h_ = h;           \
-  DList *last_##it = h_->l.prev, *iter_##it = &h_->l, *next_##it; \
-  do {                \
-      if (iter_##it == last_##it) {       \
-    next_##it = NULL;         \
-      } else {              \
-    next_##it = iter_##it->next;        \
-      }               \
-      typeof(*h)* it = CONTAINER(typeof(*h), l, iter_##it);
 
-#define DLIST_ITERATOR_END(it)            \
-  } while((iter_##it = next_##it));       \
-    }
+// /*
+//    malloc a s block and memset
+//    */
+// void *kcalloc(uint32_t num, uint32_t size) {
+//     void * ptr = malloc(num * size);
+//     memset(ptr, 0, num*size);
+//     return ptr;
+// }
+// /*
+//    wrapper function for realloc
+//    */
+// void * krealloc(void * ptr, uint32_t size) {
+//     // TODO: optimize realloc, for now, just simeply malloc and move data over
+//     return realloc(ptr, size);
+// }
 
-#define DLIST_ITERATOR_REMOVE_FROM(h, it, l) DLIST_REMOVE_FROM(h, iter_##it, l)
+// /*
+//    wrapper function for free
+//    */
+// void kfree(void * ptr) {
+//     free(ptr);
+// }
+// /*
+//    Initialize heap
+//    */
+// void kheap_init(void * start, void * end, void * max) {
+//     heap_start = start;
+//     heap_end = end;
+//     heap_max = max;
+//     heap_curr = start;
+//     kheap_enabled = 1;
+// }
 
-typedef struct Chunk Chunk;
-struct Chunk {
-    DList all;
-    int used;
-    union {
-  char data[0];
-  DList free;
-    };
-};
+// /*
+//    Given the field size in a Block(which contain free/alloc information), extract the size.
+//    */
+// uint32_t getRealSize(uint32_t size) {
+//     return (size >> 1) << 1;
+// }
 
-enum {
-    NUM_SIZES = 32,
-    ALIGN = 4,
-    MIN_SIZE = sizeof(DList),
-    HEADER_SIZE = OFFSETOF(Chunk, data),
-};
+// /*
+//    Print the heap visually, for debug.
+//    */
+// void db_print() {
+//     if(!head) {qemu_printf("your heap is empty now\n");return;}
+//     //qemu_printf("HEAP:\n");
+//     uint32_t total = 0;
+//     uint32_t total_overhead = 0;
+//     struct Block * curr = head;
+//     while(1) {
+//         // print it
+//         char c = 'A';
+//         if(isFree(curr)) c = 'F';
+//         uint32_t a = getRealSize(curr->size);
+//         qemu_printf("| %u |.%c.| %u | ", a, c, a);
+//         total = total + getRealSize(curr->size);
+//         total_overhead = total_overhead + OVERHEAD;
+//         if(isEnd(curr)) break;
+//         void * ptr = (void*)curr + OVERHEAD + getRealSize(curr->size);
+//         curr = ptr;
+//     }
+//     qemu_printf("\n total usable bytes: %d", total);
+//     qemu_printf("\n total overhead bytes: %d", total_overhead);
+//     qemu_printf("\n total bytes: %d", total + total_overhead);
+//     qemu_printf("\nfreelist: ");
 
-Chunk *free_chunk[NUM_SIZES] = { NULL };
-size_t mem_free = 0;
-size_t mem_used = 0;
-size_t mem_meta = 0;
-Chunk *first = NULL;
-Chunk *last = NULL;
+//     struct Block * ite = freelist;
+//     while(ite) {
+//         qemu_printf("(%p)->", ite);
+//         ite = ite->next;
+//     }
+//     qemu_printf("\n\n");
+//     return;
+// }
 
-static void memory_chunk_init(Chunk *chunk) {
-  //printf("%s(%p)\n", __FUNCTION__, chunk);
-    DLIST_INIT(chunk, all);
-    chunk->used = 0;
-    DLIST_INIT(chunk, free);
-}
+// /*
+//  *  Is n the end of all mem blocks ?
+//  *
+//  */
 
-static size_t memory_chunk_size(const Chunk *chunk) {
-  //printf("%s(%p)\n", __FUNCTION__, chunk);
-    char *end = (char*)(chunk->all.next);
-    char *start = (char*)(&chunk->all);
-    return (end - start) - HEADER_SIZE;
-}
+// int isEnd(struct Block * n) {
+//     return n == tail;
+// }
+// /*
+//  * Does this block fitit
+//  *
+//  * */
+// int doesItFit(struct Block * n, uint32_t size) {
+//     return n->size >= getRealSize(size) && isFree(n);
+// }
 
-static int memory_chunk_slot(size_t size) {
-    int n = -1;
-    while(size > 0) {
-  ++n;
-  size /= 2;
-    }
-    return n;
-}
+// /*
+//  * Set the free/alloc bit of the size field
+//  *
+//  * */
+// void setFree(uint32_t *size, int x) {
+//     if(x) {
+//         *size = *size | 1;
+//         return;
+//     }
+//     *size = *size & 0xFFFFFFFE;
+// }
 
-void memory_init(void *mem, size_t size) {
-    char *mem_start = (char *)(((intptr_t)mem + ALIGN - 1) & (~(ALIGN - 1)));
-    char *mem_end = (char *)(((intptr_t)mem + size) & (~(ALIGN - 1)));
-    first = (Chunk*)mem_start;
-    Chunk *second = first + 1;
-    last = ((Chunk*)mem_end) - 1;
-    memory_chunk_init(first);
-    memory_chunk_init(second);
-    memory_chunk_init(last);
-    dlist_insert_after(&first->all, &second->all);
-    dlist_insert_after(&second->all, &last->all);
-    // make first/last as used so they never get merged
-    first->used = 1;
-    last->used = 1;
+// /*
+//  * Check if a block is freed or allocated
+//  *
+//  * */
+// int isFree(struct Block * n) {
+//     if(!n) return 0;
+//     return (n->size & 0x1);
+// }
+// /*
+//  * Remove the node from freelist
+//  *
+//  * */
 
-    size_t len = memory_chunk_size(second);
-    int n = memory_chunk_slot(len);
-    //printf("%s(%p, %#lx) : adding chunk %#lx [%d]\n", __FUNCTION__, mem, size, len, n);
-    DLIST_PUSH(&free_chunk[n], second, free);
-    mem_free = len - HEADER_SIZE;
-    mem_meta = sizeof(Chunk) * 2 + HEADER_SIZE;
-}
+// void removeNodeFromFreelist(struct Block * x) {
+//     if(!x) return;
+//     if(x->prev) {
+//         x->prev->next = x->next;
+//         if(x->next)
+//             x->next->prev = x->prev;
+//     }
+//     else {
+//         freelist = x->next;
+//         if(freelist)
+//             freelist->prev = NULL;
+//     }
+// }
+// /*
+//  * Insert the node to freelist
+//  *
+//  * */
+// void addNodeToFreelist(struct Block * x) {
+//     if(!x) return;
+//     x->next = freelist;
+//     if(freelist)
+//         freelist->prev = x;
+//     freelist = x;
+//     freelist->prev = NULL;
+// }
 
-void *malloc(size_t size) {
-    //printf("%s(%#lx)\n", __FUNCTION__, size);
-    size = (size + ALIGN - 1) & (~(ALIGN - 1));
+// /*
+//  * Find the bestfit block in the memory pool
+//  *
+//  * */
+// struct Block * bestfit(uint32_t size) {
+//     // extend this, may be, optimize for certain size of type
+//     if(!freelist) return NULL;
+//     struct Block * curr = freelist;
+//     struct Block * currBest = NULL;
+//     while(curr) {
+//         if(doesItFit(curr, size)) {
+//             if(currBest == NULL || curr->size < currBest->size)
+//                 currBest = curr;
+//         }
+//         curr = curr ->next;
+//     }
+//     return currBest;;
+// }
 
-  if (size < MIN_SIZE) size = MIN_SIZE;
+// /*
+//  * Given a block , find its previous block
+//  *
+//  * */
+// struct Block * getPrevBlock(struct Block * n) {
+//     if(n == head) return NULL;
+//     // get previous block size
+//     void * ptr = n;
+//     uint32_t * uptr = ptr - sizeof(uint32_t);
+//     uint32_t prev_size = getRealSize(*uptr);
+//     void * ret = ptr - OVERHEAD - prev_size;
+//     return ret;
+// }
+// /*
+//  * Given a block , find its next block
+//  *
+//  * */
+// struct Block * getNextBlock(struct Block * n) {
+//     if(n == tail) return NULL;
+//     void * ptr = n;
+//     ptr = ptr + OVERHEAD + getRealSize(n->size);
+//     return ptr;
+// }
 
-  int n = memory_chunk_slot(size - 1) + 1;
+// /*
+//  * The real malloc function
+//  *
+//  * */
+// void *malloc(uint32_t size) {
+//     if(size == 0) return NULL;
+//     // calculate real size that's used, round it to multiple of 16
+//     uint32_t roundedSize = ((size + 15)/16) * 16;                                  /// think twice how you round
+//     uint32_t blockSize = roundedSize + OVERHEAD;
+//     // find bestfit in avl tree, note: this bestfit function will remove the best-fit node when there is more than one such node in tree.
+//     struct Block * best;
+//     best = bestfit(roundedSize);
 
-  if (n >= NUM_SIZES) return NULL;
+//     uint32_t * trailingSize = NULL;
+//     if(best) {
+//         // and! put a SIZE to the last four byte of the chunk
+//         void * ptr = (void*)best;
+//         void * saveNextBlock = getNextBlock(best);
+//         uint32_t chunkSize = getRealSize(best->size) + OVERHEAD;
+//         uint32_t rest = chunkSize - blockSize; // what's left
+//         uint32_t whichSize;
+//         // avoid integer underflow, equivalent to if(rest - OVERHEAD < 8)
+//         if(rest < 8 + OVERHEAD) whichSize = chunkSize;
+//         else whichSize = blockSize;
+//         best->size = whichSize - OVERHEAD;
+//         setFree(&(best->size), 0);
+//         void * base = ptr;
+//         trailingSize = ptr + whichSize - sizeof(uint32_t);
+//         *trailingSize = best->size;
+//         ptr = (void*)(trailingSize + 1);
 
-  while(!free_chunk[n]) {
-    ++n;
-    if (n >= NUM_SIZES) return NULL;
-    }
+//         if(rest < 8 + OVERHEAD) goto noSplit;
+//         // if size is enough, a) make it a separate memory chunk  b) merge it with the next block
+//         if(rest >= 8) {
+//             if(base != tail && isFree(saveNextBlock)) {
+//                 // choice b)  merge!
+//                 // gather info about next block
+//                 void * nextblock = saveNextBlock;
+//                 struct Block * n_nextblock = nextblock;
+//                 // remove next from list because it no longer exists(just unlink it)
+//                 removeNodeFromFreelist(n_nextblock);
+//                 // merge!
+//                 struct Block * t = ptr;
+//                 t->size = rest - OVERHEAD + getRealSize(n_nextblock->size) + OVERHEAD;
+//                 setFree(&(t->size), 1);
+//                 ptr = ptr + sizeof(struct Block) + getRealSize(t->size);
+//                 trailingSize = ptr;
+//                 *trailingSize = t->size;
 
-  Chunk *chunk = DLIST_POP(&free_chunk[n], free);
-    size_t size2 = memory_chunk_size(chunk);
-  //printf("@ %p [%#lx]\n", chunk, size2);
-    size_t len = 0;
+//                 if(nextblock == tail){
+//                     // I don't want to set it to tail now, instead, reclaim it
+//                     tail = t;
+//                     //int reclaimSize = getRealSize(t->size) + OVERHEAD;
+//                     //ksbrk(-reclaimSize);
+//                     //goto noSplit;
+//                 }
+//                 // then add merged one into the front of the list
+//                 addNodeToFreelist(t);
+//             }
+//             else {
+//                 // choice a)  seperate!
+//                 struct Block * putThisBack = ptr;
+//                 putThisBack->size = rest - OVERHEAD;
+//                 setFree(&(putThisBack->size), 1);
+//                 trailingSize = ptr + sizeof(struct Block) + getRealSize(putThisBack->size);
+//                 *trailingSize = putThisBack->size;
+//                 if(base == tail){
+//                     tail = putThisBack;
+//                     //int reclaimSize = getRealSize(putThisBack->size) + OVERHEAD;
+//                     //ksbrk(-reclaimSize);
+//                     //goto noSplit;
+//                 }
+//                 addNodeToFreelist(putThisBack);
 
-  if (size + sizeof(Chunk) <= size2) {
-    Chunk *chunk2 = (Chunk*)(((char*)chunk) + HEADER_SIZE + size);
-    memory_chunk_init(chunk2);
-    dlist_insert_after(&chunk->all, &chunk2->all);
-    len = memory_chunk_size(chunk2);
-    int n = memory_chunk_slot(len);
-    //printf("  adding chunk @ %p %#lx [%d]\n", chunk2, len, n);
-    DLIST_PUSH(&free_chunk[n], chunk2, free);
-    mem_meta += HEADER_SIZE;
-    mem_free += len - HEADER_SIZE;
-    }
+//             }
+//         }
+// noSplit:
+//         // return it!
+//         removeNodeFromFreelist(base);
+//         return base + sizeof(struct Block);
+//     }
+//     else {
+//         // :( no blocks fit my need!  use sbrk, initialize some meta data and return it!
+//         // wait! I can still optimize! if the tail block is freed, then I can sbrk less
+//         /*
+//            if(isFree(tail)) {
+//         // Calcullate how much memory to sbrk
+//         uint32_t needToSbrk = blockSize - getRealSize(tail->size) - OVERHEAD;
+//         ksbrk(needToSbrk);
+//         removeNodeFromFreelist(tail);
+//         // mark allocated
+//         tail->size = blockSize - OVERHEAD;
+//         setFree(&(tail->size), 0);
+//         trailingSize = (void*)tail + sizeof(struct Block) + getRealSize(tail->size);
+//          *trailingSize = tail->size;
+//          return tail + 1;
+//          }*/
+//         uint32_t realsize = blockSize;
+//         struct Block * ret = ksbrk(realsize);
+//         ASSERT(ret != NULL &&  "Heap is running out of space\n");
+//         if(!head) head = ret;
+//         void * ptr = ret;
+//         void * save = ret;
+//         tail = ptr;
 
-  chunk->used = 1;
-    //memset(chunk->data, 0xAA, size);
-  //printf("AAAA\n");
-    mem_free -= size2;
-    mem_used += size2 - len - HEADER_SIZE;
-    //printf("  = %p [%p]\n", chunk->data, chunk);
-    return chunk->data;
-}
+//         // after sbrk(), split the block into half [blockSize  | the rest], and put the rest into the tree.
+//         ret->size = blockSize - OVERHEAD;
+//         setFree(&(ret->size), 0);
+//         ptr = ptr + blockSize - sizeof(uint32_t);
+//         trailingSize = ptr;
+//         *trailingSize = ret->size;
+//         // now, return it!
+//         return save + sizeof(struct Block);
+//     }
+// }
 
-static void remove_free(Chunk *chunk) {
-    size_t len = memory_chunk_size(chunk);
-    int n = memory_chunk_slot(len);
-    //printf("%s(%p) : removing chunk %#lx [%d]\n", __FUNCTION__, chunk, len, n);
-    DLIST_REMOVE_FROM(&free_chunk[n], chunk, free);
-    mem_free -= len - HEADER_SIZE;
-}
+// /*
+//  * The real free function
+//  *
+//  * */
+// void free(void *ptr) {
+//     struct Block * curr = ptr - sizeof(struct Block);
+//     struct Block * prev = getPrevBlock(curr);
+//     struct Block * next = getNextBlock(curr);
+//     if(isFree(prev) && isFree(next)) {
+//         prev->size = getRealSize(prev->size) + 2*OVERHEAD + getRealSize(curr->size) + getRealSize(next->size);
+//         setFree(&(prev->size), 1);
+//         uint32_t * trailingSize = (void*)prev + sizeof(struct Block) + getRealSize(prev->size);
+//         *trailingSize = prev->size;
+//         // if next used to be tail, set prev = tail
+//         if(tail == next) tail = prev;
+//         removeNodeFromFreelist(next);
+//     }
+//     else if(isFree(prev)) {
+//         prev->size = getRealSize(prev->size) + OVERHEAD + getRealSize(curr->size);
+//         setFree(&(prev->size), 1);
+//         uint32_t * trailingSize = (void*)prev + sizeof(struct Block) + getRealSize(prev->size);
+//         *trailingSize = prev->size;
+//         if(tail == curr) tail = prev;
+//     }
+//     else if(isFree(next)) {
+//         // change size to curr's size + OVERHEAD + next's size
+//         curr->size = getRealSize(curr->size) + OVERHEAD + getRealSize(next->size);
+//         setFree(&(curr->size), 1);
+//         uint32_t * trailingSize = (void*)curr + sizeof(struct Block) + getRealSize(curr->size);
+//         *trailingSize = curr->size;
+//         if(tail == next) tail = curr;
+//         removeNodeFromFreelist(next);
+//         addNodeToFreelist(curr);
+//     }
+//     else {
+//         // just mark curr freed
+//         setFree(&(curr->size), 1);
+//         uint32_t * trailingSize = (void*)curr + sizeof(struct Block) + getRealSize(curr->size);
+//         *trailingSize = curr->size;
+//         addNodeToFreelist(curr);
+//     }
+// }
 
-static void push_free(Chunk *chunk) {
-    size_t len = memory_chunk_size(chunk);
-    int n = memory_chunk_slot(len);
-    //printf("%s(%p) : adding chunk %#lx [%d]\n", __FUNCTION__, chunk, len, n);
-    DLIST_PUSH(&free_chunk[n], chunk, free);
-    mem_free += len - HEADER_SIZE;
-}
+// /*
+//  * The real realloc function
+//  *
+//  * */
 
-void free(void *mem) {
-    Chunk *chunk = (Chunk*)((char*)mem - HEADER_SIZE);
-    Chunk *next = CONTAINER(Chunk, all, chunk->all.next);
-    Chunk *prev = CONTAINER(Chunk, all, chunk->all.prev);
+// void *realloc(void *ptr, uint32_t size) {
+//     uint32_t * trailingSize = NULL;
+//     if(!ptr) return malloc(size);
+//     if(size == 0 && ptr != NULL) {
+//         free(ptr);
+//         return NULL;
+//     }
+//     uint32_t roundedSize = ((size + 15)/16) * 16;                                  /// think twice how you round
+//     uint32_t blockSize = roundedSize + OVERHEAD;
+//     struct Block * nextBlock, * prevBlock;
+//     // shrink or expand ?
+//     // shrink:
+//     // now, we would just return the same address, later we may split this block
+//     // expand:
+//     // first, try if the actual size of the memory block is enough to to hold the current size
+//     // second, if not, try if merging the next block works
+//     // third, if none of the above works, malloc another block, move all the data there, and then free the original block
+//     struct Block * nptr = ptr - sizeof(struct Block);
+//     nextBlock = getNextBlock(nptr);
+//     prevBlock = getPrevBlock(nptr);
+//     if(nptr->size == size) return ptr;
+//     if(nptr->size < size) {
+//         // Expand, size of the block is just not enough
+//         if(tail != nptr && isFree(nextBlock) && (getRealSize(nptr->size) + OVERHEAD + getRealSize(nextBlock->size)) >= roundedSize) {
+//             // Merge with the next block, and return !
+//             // change size to curr's size + OVERHEAD + next's size
+//             removeNodeFromFreelist(nextBlock);
+//             nptr->size = getRealSize(nptr->size) + OVERHEAD + getRealSize(nextBlock->size);
+//             setFree(&(nptr->size), 0);
+//             trailingSize = (void*)nptr + sizeof(struct Block) + getRealSize(nptr->size);
+//             *trailingSize = nptr->size;
+//             if(tail == nextBlock) {
+//                 // set it to tail for now, or we can reclaim it
+//                 tail = nptr;
+//             }
+//             return nptr + 1;
+//         }
+//         // hey ! try merging with the previous block!
+//         else if(head != nptr && isFree(prevBlock) && (getRealSize(nptr->size) + OVERHEAD + getRealSize(prevBlock->size)) >= roundedSize) {
+//             //db_print();
+//             uint32_t originalSize = getRealSize(nptr->size);
+//             // hey! one more thing to do , copy data over to new block
+//             removeNodeFromFreelist(prevBlock);
+//             prevBlock->size = originalSize + OVERHEAD + getRealSize(prevBlock->size);
+//             setFree(&(prevBlock->size), 0);
+//             trailingSize = (void*)prevBlock + sizeof(struct Block) + getRealSize(prevBlock->size);
+//             *trailingSize = prevBlock->size;
+//             if(tail == nptr) {
+//                 tail = prevBlock;
+//             }
+//             memcpy(prevBlock+1, ptr, originalSize);
+//             return prevBlock + 1;
+//         }
+//         // Move to somewhere else
+//         void * newplace = malloc(size);
+//         // Copy data over
+//         memcpy(newplace, ptr, getRealSize(nptr->size));
+//         // Free original one
+//         free(ptr);
+//         return newplace;
+//     }
+//     else {
+//         // Shrink/Do nothing, you can leave it as it's, but yeah... shrink it
+//         // What's left after shrinking the original block
+//         uint32_t rest = getRealSize(nptr->size) + OVERHEAD - blockSize;
+//         if(rest < 8 + OVERHEAD) return ptr;
 
-  //printf("%s(%p): @%p %#lx [%d]\n", __FUNCTION__, mem, chunk, memory_chunk_size(chunk), memory_chunk_slot(memory_chunk_size(chunk)));
-    mem_used -= memory_chunk_size(chunk);
+//         nptr->size = blockSize - OVERHEAD;
+//         setFree(&(nptr->size), 0);
+//         trailingSize = (void*)nptr + sizeof(struct Block) + getRealSize(nptr->size);
+//         *trailingSize = nptr->size;
+//         /*
+//            if(tail == nptr) {
+//            ksbrk(-reclaimSize);
+//            return ptr;
+//            }
+//            */
+//         struct Block * splitBlock = (void*)trailingSize + sizeof(uint32_t);
 
-    if (next->used == 0) {
-    // merge in next
-    remove_free(next);
-    dlist_remove(&next->all);
-    //memset(next, 0xDD, sizeof(Chunk));
-    mem_meta -= HEADER_SIZE;
-    mem_free += HEADER_SIZE;
-    }
-    if (prev->used == 0) {
-    // merge to prev
-    remove_free(prev);
-    dlist_remove(&chunk->all);
-    //memset(chunk, 0xDD, sizeof(Chunk));
-    push_free(prev);
-    mem_meta -= HEADER_SIZE;
-    mem_free += HEADER_SIZE;
-    } else {
-    // make chunk as free
-    chunk->used = 0;
-    DLIST_INIT(chunk, free);
-    push_free(chunk);
-    }
-}
+//         // set the next, if the next of the next is also freed.. then merge!!
+//         // wait... what if after merge, I get a much much more bigger block than I even need? split again hahahahahah fuck....:*
+//         // instead of spliting after merge, let's give splitBlock
+//         if(nextBlock && isFree(nextBlock)) {
+//             splitBlock->size = rest + getRealSize(nextBlock->size);
+//             setFree(&(splitBlock->size), 1);
+//             trailingSize = (void*)splitBlock + sizeof(struct Block) + getRealSize(splitBlock->size);
+//             *trailingSize = splitBlock->size;
 
-#define MEM_SIZE (1024*1024*256)
-char MEM[MEM_SIZE] = { 0 };
+//             // remove next block from freelist
+//             removeNodeFromFreelist(nextBlock);
+//             // This can be deleted when you correctly implemented malloc()
+//             if(tail == nextBlock) {
+//                 tail = splitBlock;
+//             }
+//             // add splitblock to freelist
+//             addNodeToFreelist(splitBlock);
 
-#define MAX_BLOCK (1024*1024)
-#define NUM_SLOTS 1024
-void *slot[NUM_SLOTS] = { NULL };
+//             return ptr;
+//         }
+//         // separate !
+//         splitBlock->size = rest - OVERHEAD;
+//         setFree(&(splitBlock->size), 1);
+//         trailingSize = (void*) splitBlock + sizeof(struct Block) + getRealSize(splitBlock->size);
+//         *trailingSize = splitBlock->size;
+//         // add this mo** f**r to the freelist!
+//         addNodeToFreelist(splitBlock);
 
-void assert(int res){
-  if(res){
-    return;
-  }else{
-    shutdown();
-  }
-}
-
-void check(void) {
-  int i;
-    Chunk *t = last;
-
-  DLIST_ITERATOR_BEGIN(first, all, it) {
-    assert(CONTAINER(Chunk, all, it->all.prev) == t);
-    t = it;
-    } DLIST_ITERATOR_END(it);
-
-    for(i = 0; i < NUM_SIZES; ++i) {
-    if (free_chunk[i]) {
-      t = CONTAINER(Chunk, free, free_chunk[i]->free.prev);
-      DLIST_ITERATOR_BEGIN(free_chunk[i], free, it) {
-      assert(CONTAINER(Chunk, free, it->free.prev) == t);
-      t = it;
-      } DLIST_ITERATOR_END(it);
-    }
-    }
-}*/
+//         return ptr;
+//     }
+// }

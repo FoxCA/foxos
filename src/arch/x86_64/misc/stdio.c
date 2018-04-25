@@ -3,6 +3,7 @@
 /* -- Includes ------------------------------------------------- */
 #include <kbbuf.h>
 #include <stdio.h>
+#include <string.h>
 
 
 /* -- Globals -------------------------------------------------- */
@@ -12,7 +13,7 @@ FILE *stdin = (FILE *)0x1234;
 /* -- Functions ------------------------------------------------ */
 int printf(char *s, ...) {
   char buff[128];
-  char *buffer = &buff;
+  char *buffer = buff;
 
   va_list valist;
 
@@ -31,6 +32,10 @@ int printf(char *s, ...) {
         case 'i':
           itos(va_arg(valist, int), buffer, 10);
           puts(buffer);
+          s++;
+          break;
+        case 's':
+          puts(va_arg(valist, char *));
           s++;
           break;
         case 'o': //Octal integer

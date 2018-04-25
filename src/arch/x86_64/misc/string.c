@@ -3,6 +3,7 @@
 /* -- Includes ------------------------------------------------- */
 #include <string.h>
 #include <stdio.h>
+#include <types.h>
 
 /* -- Internal Constants --------------------------------------- */
 #define ITOS_MAX_BUFFER 128
@@ -21,7 +22,7 @@ void nullString(char *s, int l) // Nulls a string given a &pointer and a length.
 char *itos(int i, char *buffer, int base) {
   const char digits[17] = "0123456789abcdef";
   char pt[ITOS_MAX_BUFFER];
-  char *p = &pt;
+  char *p = pt;
 
   if (i < 0) {
     *p++ = '-';
@@ -40,7 +41,7 @@ char *itos(int i, char *buffer, int base) {
     i = i / base;
   } while (i);
 
-  return strcpy(&buffer, &p);
+  return strcpy(buffer, p);
 }
 
 char *strcpy(char *dst, const char *src)
@@ -81,7 +82,25 @@ int strcmp(const char *s1, const char *s2)
  return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
 
-int stringlength(char *str)
+int strncmp( const char * s1, const char * s2, size_t n )
+{
+    while ( n && *s1 && ( *s1 == *s2 ) )
+    {
+        ++s1;
+        ++s2;
+        --n;
+    }
+    if ( n == 0 )
+    {
+        return 0;
+    }
+    else
+    {
+        return ( *(unsigned char *)s1 - *(unsigned char *)s2 );
+    }
+}
+
+int strlen(char *str)
 {
 	for (int i = 0;; i++)
 	{

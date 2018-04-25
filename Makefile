@@ -9,7 +9,8 @@ grub_cfg := src/arch/$(arch)/grub/menu.lst
 
 CFLAGS= -m32 -Wall -O -fno-pie -fstrength-reduce -fomit-frame-pointer	\
         -finline-functions -nostdinc -fno-builtin -ffreestanding		\
-        -fno-stack-protector -c
+        -fno-stack-protector -c -Wno-unused-variable
+# Wunused-variable will be ignored!
 
 CFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
 

@@ -1,5 +1,5 @@
 #include <system.h>
-
+#include <stdio.h>
 
 void reboot(void)
 {
@@ -9,8 +9,8 @@ void reboot(void)
     good = inportb(0x64);
   }
   outportb(0x64, 0xFE);
- loop:
-  asm volatile ("hlt");
+  loop:
+    asm volatile ("hlt");
   goto loop;
 }
 
