@@ -345,7 +345,9 @@ int shell_start(void)
   
   set_kb_handler(&shell_kb_handler);
   
-  printf("Fox v0.0.2 successfully loaded. Enter \"help\" or \"?\" for help.\n");
+  printf("Fox ");
+  printf(FOX_VERSION);
+  printf(" successfully loaded. Enter \"help\" or \"?\" for help.\n");
 
   while (main_process.loop)
   {

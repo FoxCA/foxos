@@ -7,6 +7,8 @@
 #include <system.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <version.h>
+
 
 /* -- Defines -------------------------------------------------- */
 #define EOF 0
