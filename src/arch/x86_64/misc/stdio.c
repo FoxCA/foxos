@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <types.h>
-
+#include <version.h>
 
 /* -- Globals -------------------------------------------------- */
 FILE *stdin = (FILE *)0x1234;
