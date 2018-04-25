@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <types.h>
-
+#include <unistd.h>
 
 /* -- Globals -------------------------------------------------- */
 FILE *stdin = (FILE *)0x1234;
@@ -133,7 +133,7 @@ int getchar(void)
 }
 
 
-void panic(const char* message, const char* file, uint32_t line)
+void panic(char* message, char* file, uint32_t line)
 {
   asm volatile ("cli");
 
@@ -150,7 +150,7 @@ void panic(const char* message, const char* file, uint32_t line)
   reboot();
 }
 
-void panic_assert(const char* file, uint32_t line, const char* desc)
+void panic_assert(char* file, uint32_t line, char* desc)
 {
   asm volatile ("cli");
 
