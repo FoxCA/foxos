@@ -347,7 +347,7 @@ int shell_start(void)
   
   set_kb_handler(&shell_kb_handler);
   
-  printf("kcll v2:25.04.2018");
+  printf("kcll v2:25.04.2018\n");
   printf("kcll successfully loaded. Enter \"help\" or \"?\" for help.\n");
 
   while (main_process.loop)
@@ -411,7 +411,7 @@ void processInput(char *input)
 {
   if (starts_with(input, "help") || starts_with(input, "?"))
   {
-    printf("Fox v0.0.1 shell.\n");
+    printf("kcll v2:25.04.2018.\n");
     printf("help - Display this help page.\n");
     printf("shutdown - Shut the computer down. You can also press [ESC]!\n");
     printf("? - Display this help page.\n");

@@ -13,5 +13,6 @@ char *strcat(char *dst, const char *src);
 int strcmp(const char *s1, const char *s2);
 int strlen(char *str);
 int strncmp( const char * s1, const char * s2, size_t n );
+int strswith(char *str, char *sw);
 
 #endif

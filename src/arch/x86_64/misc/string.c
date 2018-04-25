@@ -108,3 +108,10 @@ int strlen(char *str)
 	}
 	return 0; // Theoretically impossible, but better safe than sorry.
 }
+
+int strswith(char *str, char *sw) {
+  if (strncmp(str,sw,strlen(sw)) == 0) {
+    return 1;
+  };
+  return 0;
+}
