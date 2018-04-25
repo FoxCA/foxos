@@ -50,6 +50,7 @@ extern void irq_install();
 /* TIMER.C */
 extern void timer_wait(int ticks);
 extern void timer_install();
+extern int timer_get_time_since_boot();
 
 /* KEYBOARD.C */
 extern void keyboard_install();

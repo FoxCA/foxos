@@ -1,0 +1,7 @@
+
+
+
+fox_shell_register("vgatest", function_to_call);
+shell registering commands
+
+

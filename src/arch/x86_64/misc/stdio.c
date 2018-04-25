@@ -145,7 +145,9 @@ void panic(const char* message, const char* file, uint32_t line)
   printf("%i",line);
   printf("\n");
 
-  for (;;);
+  printf("rebooting...");
+  for (int i = 0; i < 1000000000; ++i){}
+  reboot();
 }
 
 void panic_assert(const char* file, uint32_t line, const char* desc)

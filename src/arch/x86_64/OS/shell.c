@@ -345,7 +345,7 @@ int shell_start(void)
   
   set_kb_handler(&shell_kb_handler);
   
-  printf("Fox v0.0.1 successfully loaded. Enter \"help\" or \"?\" for help.\n");
+  printf("Fox v0.0.2 successfully loaded. Enter \"help\" or \"?\" for help.\n");
 
   while (main_process.loop)
   {
@@ -461,7 +461,9 @@ void processInput(char *input)
     return;
   }
   else if(starts_with(input,"test")){
-    abort();
+    PANIC("test");
+  }else if(starts_with(input,"time")){
+    printf("%i\n",timer_get_time_since_boot());
   }
   else
   {
