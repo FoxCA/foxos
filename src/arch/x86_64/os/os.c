@@ -4,6 +4,6 @@
 #include <shell.h>
 #include <structs.h>
 
-void OS(){
+void os(){
   shell_start();
 }

@@ -59,6 +59,6 @@ extern void keyboard_install();
 extern void sys_heap();
 
 /* OS.C */
-extern void OS();
+extern void os();
 
 #endif

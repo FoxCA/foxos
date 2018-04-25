@@ -24,7 +24,7 @@ void shutdown(void)
 void application_start(void)
 {
   printf("Fox Kernel v0.0.1 loaded.\n");
-  OS(); // "loaded" output handled by shell
+  os(); // "loaded" output handled by shell
 
   for(;;);
 }
