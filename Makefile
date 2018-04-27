@@ -2,6 +2,7 @@ version = 0.0.2
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/fox-$(version)-$(arch).iso
+img := build/fox-$(version)-$(arch).img
 dirs = $(shell find src/arch/$(arch)/ -type d -print)
 includedirs :=  $(sort $(foreach dir, $(foreach dir1, $(dirs), $(shell dirname $(dir1))), $(wildcard $(dir)/include)))
 linker_script := src/arch/$(arch)/link.ld
@@ -36,17 +37,17 @@ install-all:
 clean:
 	@rm -r build
 
-run: $(iso)
+run: $(kernel)
 	@echo starting emulator...
-	@qemu-system-x86_64 -m 400M -cdrom $(iso) -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdd ext2_hdd.img
+	@qemu-system-x86_64 -m 400M -kernel $(kernel) -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
 
-runrel: $(iso)
+runrel: $(kernel)
 	@echo starting emulator...
-	@qemu-system-x86_64  -m 65536k -cdrom $(iso) -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdd ext2_hdd.img
+	@qemu-system-x86_64  -m 65536k -kernel $(kernel) -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
 
-rundebug:
+rundebug: $(kernel)
 	@echo starting emulator...
-	@qemu-system-x86_64 -s -S -m 65536k -cdrom $(iso) -device isa-debug-exit,iobase=0xf4,iosize=0x04
+	@qemu-system-x86_64 -s -S -m 65536k -kernel $(kernel) -device isa-debug-exit,iobase=0xf4,iosize=0x04
 
 runv: $(iso)
 	@virtualbox $(iso)
@@ -65,6 +66,7 @@ $(iso): $(kernel) $(grub_cfg)
 $(kernel): $(assembly_object_files) $(c_object_files) $(linker_script)
 	@echo linking...
 	@ld -m -nostdlib -m elf_i386 -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_object_files)
+	@./mkext2image.sh
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
