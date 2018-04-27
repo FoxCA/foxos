@@ -38,10 +38,10 @@ stack_top:
 
 ; Kernel entry
 section .text
+global _start
 global start
-global low_kernel_entry
-low_kernel_entry equ (start - VM_BASE)
-start:
+start equ (_start - VM_BASE)
+_start:
     
     ; update page directory address, since eax and ebx is in use, have to use ecx or other register
     mov ecx, (TEMP_PAGE_DIRECTORY - VM_BASE)

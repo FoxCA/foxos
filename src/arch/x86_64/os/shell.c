@@ -442,8 +442,15 @@ void processInput(char *input)
 {
   for (int i = 0; i < commandcurrent; ++i)
   {
-    if(starts_with(input, commands[i].prefix)){
-      commands[i].callback();
+    list_t * argv = str_split(input," ",0);
+
+
+    if(starts_with((char *)list_get_node_by_index(argv,0)->val, commands[i].prefix)){
+      if(list_size(argv) < commands[i].arguments){
+        printf("not enough arguments given\n");    
+      }else{
+        commands[i].callback(argv,list_size(argv));
+      }
       return;
     }
   }

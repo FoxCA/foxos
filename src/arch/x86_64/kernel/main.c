@@ -135,6 +135,7 @@ void main()
 
     __asm__ __volatile__ ("sti");
 
+    #if FILESYSTEM
     settextcolor(yellow,black);
     pci_init();
     settextcolor(green,black);
@@ -151,8 +152,9 @@ void main()
     ext2_init("/dev/hdb", "/");
     settextcolor(green,black);
     printf("filesystem initialized...\n");
+    #endif
+    
     settextcolor(yellow,black);
-
     uint32_t esp;
     asm volatile("mov %%esp, %0" : "=r"(esp));
     

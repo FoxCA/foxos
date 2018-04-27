@@ -1,12 +1,15 @@
 version = 0.0.2
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
+kernel_fullname := kernel-$(arch).bin
 iso := build/fox-$(version)-$(arch).iso
 img := build/fox-$(version)-$(arch).img
 dirs = $(shell find src/arch/$(arch)/ -type d -print)
 includedirs :=  $(sort $(foreach dir, $(foreach dir1, $(dirs), $(shell dirname $(dir1))), $(wildcard $(dir)/include)))
 linker_script := src/arch/$(arch)/link.ld
 grub_cfg := src/arch/$(arch)/grub/menu.lst
+grub_cfg_img := src/arch/$(arch)/grub/grub.cfg
+grub_timeout := 10
 
 CFLAGS= -m32 -Wall -O -Werror -fno-pie -fstrength-reduce -fomit-frame-pointer	\
         -finline-functions -nostdinc -fno-builtin -ffreestanding		\
@@ -37,22 +40,41 @@ install-all:
 clean:
 	@rm -r build
 
-run: $(kernel)
+runold: $(kernel)
 	@echo starting emulator...
 	@qemu-system-x86_64 -m 400M -kernel $(kernel) -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
 
-runrel: $(kernel)
+boot:
 	@echo starting emulator...
-	@qemu-system-x86_64  -m 65536k -kernel $(kernel) -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
+	@qemu-system-x86_64  -m 65536k -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda $(img) -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
+
+run: $(img)
+	@echo starting emulator...
+	@qemu-system-x86_64 -m 400M -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda $(img) -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
+
+runrel: $(img)
+	@echo starting emulator...
+	@qemu-system-x86_64  -m 65536k -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda $(img) -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
 
 rundebug: $(kernel)
 	@echo starting emulator...
-	@qemu-system-x86_64 -s -S -m 65536k -kernel $(kernel) -device isa-debug-exit,iobase=0xf4,iosize=0x04
+	@qemu-system-x86_64 -s -S -m 65536k -device isa-debug-exit,iobase=0xf4,iosize=0x04
 
-runv: $(iso)
-	@virtualbox $(iso)
+runv: $(img)
+	@virtualbox $(img)
+
+$(img): $(kernel) config
+	@./mkext2image.sh
+	@./mkimg.sh $(img)
+	sudo cp $(kernel) /mnt/boot
+	sudo cp $(grub_cfg_img) /mnt/boot/grub
+	@sudo umount /mnt
 
 iso: $(iso)
+
+config:
+	@echo generating config... 
+	@echo 'set color_highlight=magenta/blue\nset color_normal=white/blue\nset timeout=$(grub_timeout)\nset default=0\nmenuentry "foxos" {\n    multiboot /boot/$(kernel_fullname)\n}\nmenuentry "Shutdown" --class shutdown {\n    halt\n}\nmenuentry "Reboot" --class shutdown {\n    reboot\n}\n' > $(grub_cfg_img)
 
 $(iso): $(kernel) $(grub_cfg)
 	@echo generating iso file...
@@ -66,7 +88,7 @@ $(iso): $(kernel) $(grub_cfg)
 $(kernel): $(assembly_object_files) $(c_object_files) $(linker_script)
 	@echo linking...
 	@ld -m -nostdlib -m elf_i386 -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_object_files)
-	@./mkext2image.sh
+
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
