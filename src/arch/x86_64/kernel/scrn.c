@@ -1,10 +1,27 @@
 
+#include <stdio.h>
 #include <system.h>
 #include <vga.h>
 
-unsigned short *textmemptr;
 int attrib = 0x0F;
 int csr_x = 0, csr_y = 0;
+int doautoscoll = 0; 
+
+void autoscroll(){
+    doautoscoll = 0;
+}
+
+void waitscroll(){
+    doautoscoll = 1;
+}
+
+void linescroll(){
+    doautoscoll = 2;
+}
+
+void slowscroll(){
+    doautoscoll = 3;
+}
 
 void set_csr_x(int x)
 {
@@ -30,10 +47,19 @@ void scroll(void)
 
     if(csr_y >= height)
     {
+        if(keyboard_initialized() && doautoscoll == 1){
+            while(keyboard_dequeue() == 0);
+            cls();
+            return;
+        }else if(keyboard_initialized() && doautoscoll == 2){
+            while(keyboard_dequeue() == 0);
+        }else if(doautoscoll == 3){
+            for (int i = 0; i < 400000000; ++i);
+        }
         temp = csr_y - height + 1;
-        memcpy (textmemptr, textmemptr + temp * width, (height - temp) * width * 2);
+        memcpy (SCREEN, SCREEN + temp * width, (height - temp) * width * 2);
 
-        memsetw (textmemptr + (height - temp) * width, blank, width);
+        memsetw (SCREEN + (height - temp) * width, blank, width);
         csr_y = height - 1;
     }
 }
@@ -59,36 +85,36 @@ void move_csr(void)
 
 void cls()
 {
+    
     unsigned blank;
     int i;
 
     blank = 0x20 | (attrib << 8);
 
-    for(i = 0; i < height; i++){
-        memsetw (textmemptr + i * width, blank, width);
-    }
+    memsetw(SCREEN, blank, width * height);
 
     csr_x = 0;
     csr_y = 0;
-    move_csr();
+    move_csr();    
 }
 
 void putch(char c)
 {
+  
     unsigned short *where;
     unsigned att = attrib << 8;
 
     if(c == 0x08){
         if(csr_x != 0){
             csr_x--;
-            where = textmemptr + (csr_y * width + csr_x);
+            where = SCREEN + (csr_y * width + csr_x);
             *where = ' ' | att;
         }else{
             csr_y--;
         }
     }
 
-    else if(c == 0x09){
+    else if(c == 0x09){       
         csr_x = (csr_x + 8) & ~(8 - 1);
     }
 
@@ -96,21 +122,22 @@ void putch(char c)
         csr_x = 0;
     }
 
-    else if(c == '\n'){
+    else if(c == '\n'){      
         csr_x = 0;
         csr_y++;
     }
 
     else if(c >= ' '){
-        where = textmemptr + (csr_y * width + csr_x);
-        *where = c | att;
-        csr_x++;
-    }
+        where = SCREEN + (csr_y * width + csr_x);
+        *where = c | att;       
+        csr_x++;        
+    }  
 
     if(csr_x >= width){
         csr_x = 0;
         csr_y++;
     }
+
     scroll();
     move_csr();
 }
@@ -133,8 +160,24 @@ void settextcolor(unsigned char forecolor, unsigned char backcolor)
     attrib = (backcolor << 4) | (forecolor & 0x0F);
 }
 
-void init_video(void)
+void settextcolorf(unsigned int color)
 {
+    /* Top 4 bytes are the background, bottom 4 bytes
+    *  are the foreground color */
+    attrib = color;
+}
+
+unsigned int gettextcolorf()
+{
+    /* Top 4 bytes are the background, bottom 4 bytes
+    *  are the foreground color */
+    return attrib;
+}
+
+
+
+void init_video(void)
+{  
     outportb(0x03c8, 0x03);
     outportb(0x03c9, 0x72 >> 2);
     outportb(0x03c9, 0x9f >> 2);
@@ -146,6 +189,7 @@ void init_video(void)
     outportb(0x03c9, 0xA4 >> 2);
 
     settextcolor(white, black);
-    textmemptr = (unsigned short *)0xB8000;
+
     cls();
+
 }

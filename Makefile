@@ -7,9 +7,10 @@ includedirs :=  $(sort $(foreach dir, $(foreach dir1, $(dirs), $(shell dirname $
 linker_script := src/arch/$(arch)/link.ld
 grub_cfg := src/arch/$(arch)/grub/menu.lst
 
-CFLAGS= -m32 -Wall -O -fno-pie -fstrength-reduce -fomit-frame-pointer	\
+CFLAGS= -m32 -Wall -O -Werror -fno-pie -fstrength-reduce -fomit-frame-pointer	\
         -finline-functions -nostdinc -fno-builtin -ffreestanding		\
-        -fno-stack-protector -c -Wno-unused-variable
+        -fno-stack-protector -c -Wno-unused-variable -Wno-maybe-uninitialized -Wno-error=varargs \
+        -Wno-error=discarded-qualifiers
 # Wunused-variable will be ignored!
 
 CFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
@@ -37,11 +38,15 @@ clean:
 
 run: $(iso)
 	@echo starting emulator...
-	@qemu-system-x86_64 -m 400M -cdrom $(iso) -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04
+	@qemu-system-x86_64 -m 400M -cdrom $(iso) -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdd ext2_hdd.img
 
 runrel: $(iso)
 	@echo starting emulator...
-	@qemu-system-x86_64  -m 65536k -cdrom $(iso) -device isa-debug-exit,iobase=0xf4,iosize=0x04
+	@qemu-system-x86_64  -m 65536k -cdrom $(iso) -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdd ext2_hdd.img
+
+rundebug:
+	@echo starting emulator...
+	@qemu-system-x86_64 -s -S -m 65536k -cdrom $(iso) -device isa-debug-exit,iobase=0xf4,iosize=0x04
 
 runv: $(iso)
 	@virtualbox $(iso)

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <types.h>
+#include <system.h>
 #include <version.h>
 
 /* -- Globals -------------------------------------------------- */
@@ -23,6 +24,7 @@ int printf(char *s, ...) {
   for (; *s != '\0'; s++) {
     if (*s == '\n') {
       putchar('\n');
+      // putchar('\n');
     } else if (*s != '%') {
       putchar(*s);
     } else {
@@ -32,7 +34,7 @@ int printf(char *s, ...) {
           break; //Protection
         case 'd': //Signed decimal integer
         case 'i':
-          itos(va_arg(valist, int), buffer, 10);
+          itoa(va_arg(valist, int), buffer, 10);
           puts(buffer);
           s++;
           break;
@@ -41,17 +43,22 @@ int printf(char *s, ...) {
           s++;
           break;
         case 'o': //Octal integer
-          itos(va_arg(valist, int), buffer, 8);
+          itoa(va_arg(valist, int), buffer, 8);
           puts(buffer);
           s++;
           break;
         case 'x': //Hexadecimal integer
-          itos(va_arg(valist, int), buffer, 16);
+          itoa(va_arg(valist, int), buffer, 16);
           puts(buffer);
           s++;
           break;
         case 'p':
-          itos((uint32_t)va_arg(valist, void *), buffer, 16);
+          itoa((uint32_t)va_arg(valist, void *), buffer, 16);
+          puts(buffer);
+          s++;         
+          break;
+        case 'f':
+          dtoa(va_arg(valist, double), buffer, -1);
           puts(buffer);
           s++;         
           break;
@@ -134,9 +141,10 @@ int getchar(void)
 }
 
 
-void panic(const char* message, const char* file, uint32_t line)
+void panic(char* message, char* file, uint32_t line)
 {
   asm volatile ("cli");
+  settextcolor(red,black);
 
   printf("PANIC(");
   printf(message);
@@ -144,16 +152,18 @@ void panic(const char* message, const char* file, uint32_t line)
   printf(file);
   printf(":");
   printf("%i",line);
-  printf("\n");
+  printf("\n\n");
 
-  printf("rebooting...");
-  for (int i = 0; i < 1000000000; ++i){}
-  reboot();
+
+  printf("please reboot");  
+  
+  for (;;);
 }
 
-void panic_assert(const char* file, uint32_t line, const char* desc)
+void panic_assert(char* file, uint32_t line, char* desc)
 {
   asm volatile ("cli");
+  settextcolor(red,black);
 
   printf("ASSERTION-FAILED(");
   printf(desc);
@@ -161,7 +171,9 @@ void panic_assert(const char* file, uint32_t line, const char* desc)
   printf(file);
   printf(":");
   printf("%i",line);
-  printf("\n");
+  printf("\n\n");
+
+  printf("please reboot");  
 
   for (;;);
 }

@@ -24,14 +24,17 @@ void timer_handler(struct regs *r)
 }
 
 int timer_get_time_since_boot(){
-    return (int)(timer_ticks/18);
+    return (int)(timer_ticks);
 }
 
+
+//not working!
 /* This will continuously loop until the given time has
 *  been reached */
 void timer_wait(int ticks)
 {
     unsigned long eticks;
+
 
     eticks = timer_ticks + ticks;
     while(timer_ticks < eticks);

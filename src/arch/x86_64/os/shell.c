@@ -5,8 +5,12 @@
  */
 
 #include <shell.h>
+#include "commands"
+#include <list.h>
 
-char fox_ascii_art[1209] = "                                                                    ,-,\n                                                              _.-=;~ /_\n                                                           _-~   '     ;.\n                                                       _.-~     '   .-~-~`-._\n                                                 _.--~~:.             --.____88\n                               ____.........--~~~. .' .  .        _..-------~~\n                      _..--~~~~               .' .'             ,'\n                  _.-~                        .       .     ` ,'\n                .'                                    :.    ./\n              .:     ,/          `                   ::.   ,'\n            .:'     ,(            ;.                ::. ,-'\n           .'     ./'.`.     . . /:::._______.... _/:.o/\n          /     ./'. . .)  . _.,'               `88;?88|\n        ,'  . .,/'._,-~ /_.o8P'                  88P ?8b\n     _,'' . .,/',-~    d888P'                    88'  88|\n _.'~  . .,:oP'        ?88b              _..--- 88.--'8b.--..__\n :     ...' 88o __,------.88o ...__..._.=~- .    `~~   `~~      ~-._ Seal _\n `.;;;:='    ~~            ~~~                ~-    -       -   -\n";
+struct command commands[1024] = {0};
+int commandcurrent = 0;
+
 
 unsigned char shell_foreground_colour = white;
 unsigned char shell_background_colour = black;
@@ -21,6 +25,11 @@ bool shell_kb_caps = false;
 
 int offset_write = 0;
 int offset_read = 0;
+
+#define command_history_size 20
+char * command_history[command_history_size];
+int command_history_current = 0;
+int command_history_pnt = 0;
 
 char shell_scan_US[128] =
 {
@@ -274,7 +283,7 @@ void shell_kb_handler(unsigned char scancode)
       break;
   }
   
-  unsigned char scan_keymap_index = scancode & 0b01111111; // The keymap scan index (with the potential released flag bit removed).
+unsigned char scan_keymap_index = scancode & 0b01111111; // The keymap scan index (with the potential released flag bit removed).
   
   if ((scancode & 0b10000000) > 0) // Is the released flag bit set? 0bXyyyyyyy X = flag, y = scancode
   {
@@ -298,33 +307,12 @@ void shell_kb_handler(unsigned char scancode)
  */
 int starts_with(char *s1, char* s2)
 {
+ 
+
   if(strncmp(s1, s2, strlen(s2)) == 0){
     return 1;
   };
   return 0;
-  //old startswith (before strncmp)
-  // int s1_len = strlen(s1); // Gets the length of the input strings
-  // int s2_len = strlen(s2);
-
-
-  // if (s1_len < s2_len) // If the comparison string is bigger than the input string, return 0
-  // {
-  //   return 0;
-  // }
-
-  // for (int i = 0; s2[0] != '\0'; i++)
-  // {
-  //   printf(s1[i]);
-  //   printf(s2[i]);
-  //   printf(">");
-  //   if (s1[i] != s2[i]) {
-  //     return 0; // If the current char is not the same as the input string, s1 isn't starting with s2.
-  //   }
-  // }
-
-  // if (s1[s2_len] != ' ') return 0; // If the input string doesn't end with a space, it technically starts with s2, but not for our usage.
-
-  return 1; // Everything is fine!
 }
 
 /*
@@ -334,6 +322,8 @@ int starts_with(char *s1, char* s2)
  * 1 - no exit problems
  * 2 - general error, no further specification.
  */
+
+
 int shell_start(void)
 {
   state main_process;
@@ -349,11 +339,17 @@ int shell_start(void)
   printf(FOX_VERSION);
   printf(" successfully loaded. Enter \"help\" or \"?\" for help.\n");
 
+  setup_commands();
+
   while (main_process.loop)
   {
     settextcolor(shell_foreground_colour, shell_background_colour);
     printf("> ");
     getInput(input_p, 79);
+  
+    command_history[command_history_pnt%command_history_size] = input_p;
+    command_history_pnt++;
+
     processInput(input_p);
     nullString(input_p, 79);
   }
@@ -375,9 +371,12 @@ void getInput(char *buffer, int buf_size)
 {
   int counter = 0;
   char c;
+  int shouldprint;
   
   while (counter < buf_size)
   {
+    shouldprint = false;
+
     if (halt_read)
     {
       halt_read = false;
@@ -386,90 +385,67 @@ void getInput(char *buffer, int buf_size)
       return;
     }
     
-    c = keyboard_dequeue();
-    
-    if (c == 0x00)
-      continue;
-    
-    if (c == '\n')
-    {
-      putchar(c);
-      *buffer = 0x00;
-      return;
+    c = keyboard_dequeue();  
+    switch(c){
+      // case 0x48://up arrow
+      //   while(--counter>=0){
+      //     buffer--;
+      //     putchar('\b');
+      //   }
+      //   break;
+      // case 0x4b://left arrow
+      //   break;
+      // case 0x6d://right arrow
+      //   break;
+      // case 0x50://down arrow
+      //   break;
+      case 0x00:
+        continue;
+      case '\n':
+        putchar(c);
+        *buffer = 0x00;
+        return;   
+        break;
+      case '\b':
+        if(counter > 0){
+          putchar('\b');
+          buffer--;
+          counter--;
+        }
+        break;
+      default:
+        shouldprint = true;
     }
     
-    *(buffer++) = c;
-    putchar(c);
+    if(c != 8){
+      counter++;
+      *(buffer++) = c;
+    }
+
+    if(counter >= 0 && shouldprint){
+      putchar(c);
+    }
   }
 }
 
 /*
  * This processes all input. When malloc() is done, it will be dynamic, but for now, it's static interpretation.
  */
+
+void kcll_register_command(struct command c){
+  commands[commandcurrent] = c;
+  commandcurrent++;
+}
+
+
 void processInput(char *input)
 {
-  if (starts_with(input, "help") || starts_with(input, "?"))
+  for (int i = 0; i < commandcurrent; ++i)
   {
-    printf("Fox v0.0.1 shell.\n");
-    printf("help - Display this help page.\n");
-    printf("shutdown - Shut the computer down. You can also press [ESC]!\n");
-    printf("? - Display this help page.\n");
-    return;
-  }
-  else if (starts_with(input, "shutdown"))
-  {
-    shutdown();
-  }
-  else if (starts_with(input, "reboot"))
-  {
-    reboot();
-  }
-  else if (starts_with(input, "fox"))
-  {
-    printf("You have found the secret fox ASCII art! :D Enjoy!\n");
-    settextcolor(brown, black);
-    puts(fox_ascii_art); // puts, because malloc.. lel
-    settextcolor(white, black);
-    return;
-  }
-  else if (starts_with(input, "vgatest"))
-  {
-    char hex[16] = {
-      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-    };
-
-    for (int i = 0; i != 15; i++)
-    {
-      for (int j = 0; j != 15; j++)
-      {
-        settextcolor((unsigned char)i, (unsigned char)j);
-        putchar(hex[i]);
-        putchar(hex[j]);
-        settextcolor(white, black);
-        putchar(' ');
-      }
-      putchar('\n');
+    if(starts_with(input, commands[i].prefix)){
+      commands[i].callback();
+      return;
     }
-    return;
   }
-  else if (starts_with(input, "clear"))
-  {
-    set_csr_xy(0, 0);
-    for (int i = 0; i <= 80*25; i++)
-    {
-      printf(" ");
-    }
-    set_csr_xy(0, 0);
-    return;
-  }
-  else if(starts_with(input,"test")){
-    PANIC("test");
-  }else if(starts_with(input,"time")){
-    printf("time since boot (seconds):%i\n\n",timer_get_time_since_boot());
-  }
-  else
-  {
-    printf("Unknown command.\n");
-    return;
-  }
+  printf("Unknown command.\n");
 }

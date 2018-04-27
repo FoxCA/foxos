@@ -10,6 +10,14 @@
 #include <vga.h>
 #include <kbbuf.h>
 
+typedef void (*callback)();
+
+typedef struct command{
+	char * prefix;
+	int arguments;
+	callback callback;
+}command;
+
 char fox_ascii_art[1209];
 
 unsigned char shell_foreground_colour;
@@ -49,6 +57,7 @@ int starts_with(char *s1, char* s2);
 
 int shell_start(void);
 
+void kcll_register_command(struct command c);
 void processInput(char *input);
 
 #endif

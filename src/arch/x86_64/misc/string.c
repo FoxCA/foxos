@@ -2,6 +2,7 @@
 
 /* -- Includes ------------------------------------------------- */
 #include <string.h>
+#include <list.h>
 #include <stdio.h>
 #include <types.h>
 
@@ -19,7 +20,7 @@ void nullString(char *s, int l) // Nulls a string given a &pointer and a length.
 	}
 }
 
-char *itos(int i, char *buffer, int base) {
+char *itoa(int i, char *buffer, int base) {
   const char digits[17] = "0123456789abcdef";
   char pt[ITOS_MAX_BUFFER];
   char *p = pt;
@@ -107,4 +108,96 @@ int strlen(char *str)
 		if (str[i] == '\0') return i;
 	}
 	return 0; // Theoretically impossible, but better safe than sorry.
+}
+
+
+int isspace(char c) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r';
+}
+
+list_t * str_split(char * str, const char * delim, unsigned int * numtokens) {
+    list_t * ret_list = list_create();
+    char *s = strdup(str);
+    char *token, *rest = s;
+    while ((token = strsep(&rest, delim)) != NULL) {
+        if(!strcmp(token, ".")) continue;
+        if(!strcmp(token, "..")) {
+            if(list_size(ret_list) > 0) list_pop(ret_list);
+            continue;
+        }
+        list_push(ret_list, strdup(token));
+        if(numtokens) (*numtokens)++;
+    }
+    free(s);
+    return ret_list;
+}
+
+char * list2str(list_t * list, const char * delim) {
+    char * ret = kmalloc(256);
+    memset(ret, 0, 256);
+    int len = 0, ret_len = 256;
+    while(list_size(list)> 0) {
+        char * temp = list_pop(list)->val;
+        int len_temp = strlen(temp);
+        if(len + len_temp + 1 + 1 > ret_len) {
+            ret_len = ret_len * 2;
+            ret = krealloc(ret, ret_len);
+            len = len + len_temp + 1;
+        }
+        strcat(ret, delim);
+        strcat(ret, temp);
+    }
+    return ret;
+}
+
+char * strstr(const char *in, const char *str) {
+    char c;
+    uint32_t len;
+
+    c = *str++;
+    if (!c)
+        return (char *) in;
+
+    len = strlen(str);
+    do {
+        char sc;
+
+        do {
+            sc = *in++;
+            if (!sc)
+                return (char *) 0;
+        } while (sc != c);
+    } while (strncmp(in, str, len) != 0);
+
+    return (char *) (in - 1);
+}
+
+char *strsep(char **stringp, const char *delim) {
+    char *s;
+    const char *spanp;
+    int c, sc;
+    char *tok;
+    if ((s = *stringp) == NULL)
+        return (NULL);
+    for (tok = s;;) {
+        c = *s++;
+        spanp = delim;
+        do {
+            if ((sc = *spanp++) == c) {
+                if (c == 0)
+                    s = NULL;
+                else
+                    s[-1] = 0;
+                *stringp = s;
+                return (tok);
+            }
+        } while (sc != 0);
+    }
+}
+
+char * strdup(char * src) {
+    int len = strlen(src) + 1;
+    char * dst = kmalloc(len);
+    memcpy(dst, src, len);
+    return dst;
 }

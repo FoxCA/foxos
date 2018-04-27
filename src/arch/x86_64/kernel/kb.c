@@ -1,6 +1,12 @@
 
+#include <stdio.h>
 #include <system.h>
 #include <kbbuf.h>
+
+int initialized = false;
+int keyboard_initialized(){
+    return initialized;
+}
 
 /* KBDUS means US Keyboard Layout. This is a scancode table
 *  used to layout a standard US keyboard.  */
@@ -83,4 +89,5 @@ void keyboard_install()
 {
     kb_buf_init();
     irq_install_handler(1, keyboard_handler);
+    initialized = true;
 }

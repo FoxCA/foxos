@@ -1,51 +1,80 @@
-; bkerndev - Bran's Kernel Development Tutorial
-; By:   Brandon F. (friesenb@gmail.com)
-; Desc: Kernel entry point, stack, and Interrupt Service Routines.
-;
-; Notes: No warranty expressed or implied. Use at own risk.
-;
-; This is the kernel's entry point. We could either call main here,
-; or we can use this to setup the stack or other nice stuff, like
-; perhaps setting up the GDT and segments. Please note that interrupts
-; are disabled at this point: More on interrupts later!
-[BITS 32]
+; Some constants used for multiboot header
+; No need to understand, they are just a bunch of flags and magic values for the bootloader to find and recognize it as a multibootkernel
+MBALIGN     equ  1<<0
+MEMINFO     equ  1<<1
+FLAGS       equ  MBALIGN | MEMINFO
+MAGIC       equ  0x1BADB002
+CHECKSUM    equ -(MAGIC + FLAGS)
+; Some constants for loading higher half kernel
+VM_BASE     equ 0xC0000000
+PDE_INDEX   equ (VM_BASE >> 22)
+PSE_BIT     equ 0x00000010
+PG_BIT      equ 0x80000000
+
+section .multiboot
+align 4
+    dd MAGIC
+    dd FLAGS
+    dd CHECKSUM
+
+section .data
+align 4096
+global TEMP_PAGE_DIRECTORY
+TEMP_PAGE_DIRECTORY:
+    ; Map the first 4mb physical memory to first 4mb virtual memory. Otherwise, when paging is enabled, eip points to, 0x100004 for example, and MMU is not gonna know how to translate 
+    ; this address into phsyical mem address, because our PDE doesn't tell MMU how to find it.
+    dd 0x00000083
+    times(PDE_INDEX - 1) dd 0
+    dd 0x00000083
+    times(1024 - PDE_INDEX - 1) dd 0 
+
+; Our initial stack
+section .initial_stack, nobits
+align 4
+stack_bottom:
+    ; 1mb of uninitialized data(1024*1024=104856)
+    resb 104856
+stack_top:
+
+; Kernel entry
+section .text
 global start
+global low_kernel_entry
+low_kernel_entry equ (start - VM_BASE)
 start:
-    mov esp, _sys_stack     ; This points the stack to our new stack area
-    jmp stublet
-
-; This part MUST be 4byte aligned, so we solve that issue using 'ALIGN 4'
-ALIGN 4
-mboot:
-    ; Multiboot macros to make a few lines later more readable
-    MULTIBOOT_PAGE_ALIGN	equ 1<<0
-    MULTIBOOT_MEMORY_INFO	equ 1<<1
-    MULTIBOOT_AOUT_KLUDGE	equ 1<<16
-    MULTIBOOT_HEADER_MAGIC	equ 0x1BADB002
-    MULTIBOOT_HEADER_FLAGS	equ MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_AOUT_KLUDGE
-    MULTIBOOT_CHECKSUM	equ -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
-    EXTERN code, bss, end
-
-    ; This is the GRUB Multiboot header. A boot signature
-    dd MULTIBOOT_HEADER_MAGIC
-    dd MULTIBOOT_HEADER_FLAGS
-    dd MULTIBOOT_CHECKSUM
     
-    ; AOUT kludge - must be physical addresses. Make a note of these:
-    ; The linker script fills in the data for these ones!
-    dd mboot
-    dd code
-    dd bss
-    dd end
-    dd start
+    ; update page directory address, since eax and ebx is in use, have to use ecx or other register
+    mov ecx, (TEMP_PAGE_DIRECTORY - VM_BASE)
+    mov cr3, ecx
 
-; This is an endless loop here. Make a note of this: Later on, we
-; will insert an 'extern _main', followed by 'call _main', right
-; before the 'jmp $'.
-stublet:
+    ; Enable 4mb pages
+    mov ecx, cr4;
+    or ecx, PSE_BIT
+    mov cr4, ecx
+
+    ; Set PG bit, enable paging
+    mov ecx, cr0
+    or ecx, PG_BIT
+    mov cr0, ecx
+
+    ; Why not just jmp higher_half ? If you do that, that will be a relative jmp, so u r jumping to virtual memory around 0x100000, which is fine since we have identity mapped earlier
+    ; but we also want to change the eip(now point to somewhere around 0x100000) to somewhere around 0xc0100000, so we need to get the absolute address of higher half into ecx, and jmp ecx
+    lea ecx, [higher_half]
+    jmp ecx
+higher_half:
+    ; Unmap the first 4mb physical mem, because we don't need it anymore. Flush the tlb too
+    mov dword[TEMP_PAGE_DIRECTORY], 0
+    invlpg[0]
+
+    mov esp, stack_top
     extern main
+    ; Upon entry to the os, the bootloader has put a pointer to multiboot information structure in ebx, we can pass it into our kmain(), but we may or may not need to use it
+    push ebx
+    ; When control is transfer to the c code, we can throw away the old pageing directory structure and use our own, remember to clear pse bit in cr4 though :)
     call main
-    jmp $
+; If kmain return, just keep looping...
+loop:
+    jmp loop
 
 ; This will set up our new segment registers. We need to do
 ; something special in order to set CS. We do what is called a
@@ -520,7 +549,10 @@ irq_common_stub:
 ; it just to store the stack. Remember that a stack actually grows
 ; downwards, so we declare the size of the data before declaring
 ; the identifier '_sys_stack'
-SECTION .bss
-    resb 4096               ; This reserves 8KBytes of stack memory here
-_sys_stack:
+
+
+
+; SECTION .bss
+;     resb 4096               ; This reserves 8KBytes of stack memory here
+; _sys_stack:
 

@@ -17,3 +17,5 @@
 
 #define width			80
 #define height			25
+
+#define SCREEN ((uint16_t*)(LOAD_MEMORY_ADDRESS + 0xB8000))

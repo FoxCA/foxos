@@ -1,5 +1,6 @@
 
 #include <system.h>
+#include <vga.h>
 
 /* These are function prototypes for all of the exception
 *  handlers: The first 32 entries in the IDT are reserved
@@ -124,6 +125,7 @@ void fault_handler(struct regs *r)
 {
     if (r->int_no < 32)
     {
+        settextcolor(red,black);
         puts(exception_messages[r->int_no]);
         puts(" Exception. System Halted!\n");
         for (;;);

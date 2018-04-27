@@ -187,8 +187,7 @@ unsigned char keyboard_dequeue(void)
   else
   {
     ascii = *keyboard_buffer.tail;
-    keyboard_buffer.tail = keyboard_buffer.buf +
-      ((keyboard_buffer.tail + 1 - keyboard_buffer.buf) % KEYBUFSIZ);
+    keyboard_buffer.tail = keyboard_buffer.buf + ((keyboard_buffer.tail + 1 - keyboard_buffer.buf) % KEYBUFSIZ);
     return ascii;
   }
 }

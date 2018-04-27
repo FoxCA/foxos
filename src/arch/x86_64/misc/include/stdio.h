@@ -8,6 +8,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <version.h>
+#include <kbbuf.h>
+#include <vga.h>
 
 
 /* -- Defines -------------------------------------------------- */
@@ -44,8 +46,8 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
 int putchar(int c);
 int getchar(void);
 
-void panic(const char* message, const char* file, uint32_t line);
-void panic_assert(const char* file, uint32_t line, const char* desc);
+void panic(char* message, char* file, uint32_t line);
+void panic_assert(char* file, uint32_t line, char* desc);
 
 #define PANIC(msg) panic(msg, __FILE__, __LINE__);
 #define ASSERT(b) ((b) ? (void) 0 : panic_assert(__FILE__, __LINE__, #b));

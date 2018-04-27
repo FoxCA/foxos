@@ -1,0 +1,168 @@
+
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <structs.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <system.h>
+#include <vga.h>
+#include <vfs.h>
+#include <kbbuf.h>
+
+char fox_ascii_art[1209] = "                                                                    ,-,\n                                                              _.-=;~ /_\n                                                           _-~   '     ;.\n                                                       _.-~     '   .-~-~`-._\n                                                 _.--~~:.             --.____88\n                               ____.........--~~~. .' .  .        _..-------~~\n                      _..--~~~~               .' .'             ,'\n                  _.-~                        .       .     ` ,'\n                .'                                    :.    ./\n              .:     ,/          `                   ::.   ,'\n            .:'     ,(            ;.                ::. ,-'\n           .'     ./'.`.     . . /:::._______.... _/:.o/\n          /     ./'. . .)  . _.,'               `88;?88|\n        ,'  . .,/'._,-~ /_.o8P'                  88P ?8b\n     _,'' . .,/',-~    d888P'                    88'  88|\n _.'~  . .,:oP'        ?88b              _..--- 88.--'8b.--..__\n :     ...' 88o __,------.88o ...__..._.=~- .    `~~   `~~      ~-._ Seal _\n `.;;;:='    ~~            ~~~                ~-    -       -   -\n";
+
+void help_cmd(){
+  printf("Fox v0.0.1 shell.\n");
+  printf("help - Display this help page.\n");
+  printf("shutdown - Shut the computer down. You can also press [ESC]!\n");
+  printf("? - Display this help page.\n");
+  return;  
+}
+
+void fox_cmd(){
+  printf("You have found the secret fox ASCII art! :D Enjoy!\n");
+  settextcolor(brown, black);
+  puts(fox_ascii_art); // puts, because malloc.. lel
+  settextcolor(white, black);
+  return;
+}
+
+
+void vgatest_cmd(){
+    char hex[16] = {
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
+
+    for (int i = 0; i != 15; i++)
+    {
+      for (int j = 0; j != 15; j++)
+      {
+        settextcolor((unsigned char)i, (unsigned char)j);
+        putchar(hex[i]);
+        putchar(hex[j]);
+        settextcolor(white, black);
+        putchar(' ');
+      }
+      putchar('\n');
+    }
+    return;
+}
+
+void clear_cmd(){
+  set_csr_xy(0, 0);
+  for (int i = 0; i <= 80*25; i++)
+  {
+    printf(" ");
+  }
+  set_csr_xy(0, 0);
+  return;
+}
+
+void time_cmd(){
+  printf("time since boot (seconds):%i\n\n",(int)(timer_get_time_since_boot()/18.222));
+}
+
+void test_abort_cmd(){
+    PANIC("test");
+}
+
+void malloc_cmd(){
+    char * a = malloc(10*sizeof(char));
+
+   	strcpy(a,"hello");
+
+    char * b = malloc(10*sizeof(char));
+
+    strcpy(b,"hey");
+
+
+    printf("%s\n\n",a);   
+    printf("%s\n\n",b);   
+
+	db_print();
+    printf("%p\n\n",a);
+    printf("%p\n\n",b);
+}
+
+void listdirs_cmd(){
+	print_vfstree();
+}
+
+void mkdir_cmd(){
+	vfs_mkdir("hey",10);
+}
+
+void setup_commands(){
+	kcll_register_command((command){
+		"help",
+		0,
+		help_cmd
+	});
+
+	kcll_register_command((command){
+		"?",
+		0,
+		help_cmd
+	});
+
+	kcll_register_command((command){
+		"shutdown",
+		0,
+		shutdown
+	});
+
+	kcll_register_command((command){
+		"reboot",
+		0,
+		reboot
+	});
+
+	kcll_register_command((command){
+		"fox",
+		0,
+		fox_cmd
+	});
+
+	kcll_register_command((command){
+		"vgatest",
+		0,
+		vgatest_cmd
+	});
+
+	kcll_register_command((command){
+		"clear",
+		0,
+		clear_cmd
+	});
+
+	kcll_register_command((command){
+		"time",
+		0,
+		time_cmd
+	});
+
+	kcll_register_command((command){
+		"testabort",
+		0,
+		test_abort_cmd
+	});
+
+	kcll_register_command((command){
+		"malloc",
+		0,
+		malloc_cmd
+	});
+
+	kcll_register_command((command){
+		"listdirs",
+		0,
+		listdirs_cmd
+	});
+
+	kcll_register_command((command){
+		"mkdir",
+		0,
+		mkdir_cmd
+	});
+}

@@ -57,6 +57,7 @@ void irq_remap(void)
 
 void irq_install()
 {
+    
     irq_remap();
 
     idt_set_gate(32, (unsigned)irq0, 0x08, 0x8E);
