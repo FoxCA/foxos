@@ -9,6 +9,7 @@
 #include <vga.h>
 #include <vfs.h>
 #include <kbbuf.h>
+#include <shell.h>
 
 char fox_ascii_art[1209] = "                                                                    ,-,\n                                                              _.-=;~ /_\n                                                           _-~   '     ;.\n                                                       _.-~     '   .-~-~`-._\n                                                 _.--~~:.             --.____88\n                               ____.........--~~~. .' .  .        _..-------~~\n                      _..--~~~~               .' .'             ,'\n                  _.-~                        .       .     ` ,'\n                .'                                    :.    ./\n              .:     ,/          `                   ::.   ,'\n            .:'     ,(            ;.                ::. ,-'\n           .'     ./'.`.     . . /:::._______.... _/:.o/\n          /     ./'. . .)  . _.,'               `88;?88|\n        ,'  . .,/'._,-~ /_.o8P'                  88P ?8b\n     _,'' . .,/',-~    d888P'                    88'  88|\n _.'~  . .,:oP'        ?88b              _..--- 88.--'8b.--..__\n :     ...' 88o __,------.88o ...__..._.=~- .    `~~   `~~      ~-._ Seal _\n `.;;;:='    ~~            ~~~                ~-    -       -   -\n";
 
@@ -24,7 +25,7 @@ void fox_cmd(){
   printf("You have found the secret fox ASCII art! :D Enjoy!\n");
   settextcolor(brown, black);
   puts(fox_ascii_art); // puts, because malloc.. lel
-  settextcolor(white, black);
+  settextcolor(shell_foreground_colour, shell_background_colour);
   return;
 }
 
@@ -34,9 +35,10 @@ void vgatest_cmd(){
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
-    for (int i = 0; i != 15; i++)
+
+    for (int i = 0; i < 16; i++)
     {
-      for (int j = 0; j != 15; j++)
+      for (int j = 0; j < 16; j++)
       {
         settextcolor((unsigned char)i, (unsigned char)j);
         putchar(hex[i]);
@@ -57,6 +59,17 @@ void clear_cmd(){
   }
   set_csr_xy(0, 0);
   return;
+}
+
+void color_cmd(list_t * argv, int argc){
+	// printf((char *)list_get_node_by_index(argv,0)->val);
+	// printf((char *)list_get_node_by_index(argv,1)->val);
+	int fg = atoi_hex((char *)list_get_node_by_index(argv,0)->val);
+	int bg = atoi_hex((char *)list_get_node_by_index(argv,1)->val);
+
+	shell_foreground_colour = fg % 16;
+	shell_background_colour = bg % 16;
+	settextcolor(fg%16,bg%16);
 }
 
 void time_cmd(){
@@ -97,72 +110,79 @@ void setup_commands(){
 	kcll_register_command((command){
 		"help",
 		0,
-		help_cmd
+		{help_cmd}
 	});
 
 	kcll_register_command((command){
 		"?",
 		0,
-		help_cmd
+		{help_cmd}
 	});
 
 	kcll_register_command((command){
 		"shutdown",
 		0,
-		shutdown
+		{shutdown}
 	});
 
 	kcll_register_command((command){
 		"reboot",
 		0,
-		reboot
+		{reboot}
 	});
 
 	kcll_register_command((command){
 		"fox",
 		0,
-		fox_cmd
+		{fox_cmd}
 	});
 
 	kcll_register_command((command){
 		"vgatest",
 		0,
-		vgatest_cmd
+		{vgatest_cmd}
 	});
 
 	kcll_register_command((command){
 		"clear",
 		0,
-		clear_cmd
+		{clear_cmd}
 	});
 
 	kcll_register_command((command){
 		"time",
 		0,
-		time_cmd
+		{time_cmd}
 	});
 
 	kcll_register_command((command){
 		"testabort",
 		0,
-		test_abort_cmd
+		{test_abort_cmd}
 	});
 
 	kcll_register_command((command){
 		"malloc",
 		0,
-		malloc_cmd
+		{malloc_cmd}
 	});
 
 	kcll_register_command((command){
 		"listdirs",
 		0,
-		listdirs_cmd
+		{listdirs_cmd}
 	});
 
 	kcll_register_command((command){
 		"mkdir",
 		0,
-		mkdir_cmd
+		{mkdir_cmd}
+	});
+
+
+	kcll_register_command((command){
+		"color",
+		2,
+		{color_cmd}
 	});
 }

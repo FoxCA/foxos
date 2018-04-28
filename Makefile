@@ -42,7 +42,7 @@ clean:
 
 runold: $(kernel)
 	@echo starting emulator...
-	@qemu-system-x86_64 -m 400M -kernel $(kernel) -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
+	@qemu-system-x86_64 -m 400M -kernel $(kernel) -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
 
 boot:
 	@echo starting emulator...

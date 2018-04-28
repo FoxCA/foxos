@@ -45,6 +45,60 @@ char *itoa(int i, char *buffer, int base) {
   return strcpy(buffer, p);
 }
 
+int atoi(char * str) {
+  int value = 0;
+
+  while (isspace(*str)){
+    str++;
+  }
+
+  while (isdigit(*str)) 
+  {
+    value *= 10;
+    value += (int) (*str - '0');
+    str++;
+  }
+
+  return value;
+}
+
+int atoi_hex(char * str) {
+  int value = 0;
+  int sign = 1;
+
+  while (isspace(*str)){
+    str++;
+  }
+
+  if( *str == '+' || *str == '-' )
+  {
+    if( *str == '-' ){
+      sign = -1;
+    }
+    str++;
+  }else if(isdigit(*str) || (*str >= 'a' && *str <= 'f') || (*str >= 'A' && *str <= 'F')){
+    //continue
+  }else{
+    return 0;
+  }
+
+  while (isdigit(*str) || (*str >= 'a' && *str <= 'f') || (*str >= 'A' && *str <= 'F')) 
+  {
+    value *= 16;
+    if(isdigit(*str)){
+      value += (int) (*str - '0');
+    }else if(*str >= 'a' && *str <= 'f'){
+      value += (int) (*str - 'a') + 10;
+    }else if(*str >= 'A' && *str <= 'F'){
+      value += (int) (*str - 'A') + 10;
+    }
+    str++;
+  }
+
+  return value * sign;
+}
+
+
 char *strcpy(char *dst, const char *src)
 {
   unsigned int i;
@@ -110,6 +164,19 @@ int strlen(char *str)
 	return 0; // Theoretically impossible, but better safe than sorry.
 }
 
+int isdigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+int isnumber(char * c) {
+  for (int i = 0; c[i] != '\0'; ++i)
+  {
+    if(!(isdigit(c[i]) || isspace(c[i]))){
+      return 0;
+    }
+  }
+  return 1;
+}
 
 int isspace(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r';

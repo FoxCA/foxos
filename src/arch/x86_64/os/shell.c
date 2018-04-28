@@ -12,7 +12,7 @@ struct command commands[1024] = {0};
 int commandcurrent = 0;
 
 
-unsigned char shell_foreground_colour = white;
+unsigned char shell_foreground_colour = brightwhite;
 unsigned char shell_background_colour = black;
 
 unsigned char kb_leds = 0;
@@ -334,7 +334,9 @@ int shell_start(void)
   change_caps_led(true);
   
   set_kb_handler(&shell_kb_handler);
-  
+    
+  settextcolor(lightblue, shell_background_colour);
+
   printf("Fox ");
   printf(FOX_VERSION);
   printf(" successfully loaded. Enter \"help\" or \"?\" for help.\n");
@@ -449,7 +451,12 @@ void processInput(char *input)
       if(list_size(argv) < commands[i].arguments){
         printf("not enough arguments given\n");    
       }else{
-        commands[i].callback(argv,list_size(argv));
+        list_remove_by_index(argv, 0);
+        if(commands[i].arguments == 0){
+          commands[i].callback.noargv();
+        }else{ 
+          commands[i].callback.argv(argv,list_size(argv));
+        }
       }
       return;
     }

@@ -1,5 +1,5 @@
 OUTPUT_FORMAT("elf32-i386")
-ENTRY(low_kernel_entry)
+ENTRY(start)
 SECTIONS
 {
     /*Kernel binary starts at 3GB. This is VMA, virtual memory address, so now all the variable, code label is going to be reference based on this VMA

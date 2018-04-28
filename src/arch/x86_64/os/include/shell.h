@@ -10,7 +10,13 @@
 #include <vga.h>
 #include <kbbuf.h>
 
-typedef void (*callback)();
+typedef void (*callback_argv)(list_t * argv, int argc);
+typedef void (*callback_noargv)();
+
+typedef union callback{
+	callback_noargv noargv;
+	callback_argv argv;
+}callback;
 
 typedef struct command{
 	char * prefix;
