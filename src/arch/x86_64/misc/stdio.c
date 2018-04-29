@@ -23,10 +23,10 @@ int printf(char *s, ...) {
 
   for (; *s != '\0'; s++) {
     if (*s == '\n') {
-      putchar('\n');
+      putch('\n');
       // putchar('\n');
     } else if (*s != '%') {
-      putchar(*s);
+      putch(*s);
     } else {
       s++;
       switch (*s) {
@@ -36,31 +36,25 @@ int printf(char *s, ...) {
         case 'i':
           itoa(va_arg(valist, int), buffer, 10);
           puts(buffer);
-          s++;
           break;
         case 's':
           puts(va_arg(valist, char *));
-          s++;
           break;
         case 'o': //Octal integer
           itoa(va_arg(valist, int), buffer, 8);
           puts(buffer);
-          s++;
           break;
         case 'x': //Hexadecimal integer
           itoa(va_arg(valist, int), buffer, 16);
           puts(buffer);
-          s++;
           break;
         case 'p':
           itoa((uint32_t)va_arg(valist, void *), buffer, 16);
           puts(buffer);
-          s++;         
           break;
         case 'f':
           dtoa(va_arg(valist, double), buffer, -1);
           puts(buffer);
-          s++;         
           break;
         case '%': //%
           puts("%%");
@@ -75,6 +69,60 @@ int printf(char *s, ...) {
   return 0;
 }
 
+int printf_qemu(char *s, ...) {
+  char buff[128];
+  char *buffer = buff;
+
+  va_list valist;
+
+  va_start(valist, _VABUFFERSIZE);
+
+  for (; *s != '\0'; s++) {
+    if (*s == '\n') {
+      putch_qemu('\n');
+    } else if (*s != '%') {
+      putch_qemu(*s);
+    } else {
+      s++;
+      switch (*s) {
+        case '\0':
+          break; //Protection
+        case 'd': //Signed decimal integer
+        case 'i':
+          itoa(va_arg(valist, int), buffer, 10);
+          puts_qemu(buffer);
+          break;
+        case 's':
+          puts_qemu(va_arg(valist, char *));
+          break;
+        case 'o': //Octal integer
+          itoa(va_arg(valist, int), buffer, 8);
+          puts_qemu(buffer);
+          break;
+        case 'x': //Hexadecimal integer
+          itoa(va_arg(valist, int), buffer, 16);
+          puts_qemu(buffer);
+          break;
+        case 'p':
+          itoa((uint32_t)va_arg(valist, void *), buffer, 16);
+          puts_qemu(buffer);
+          break;
+        case 'f':
+          dtoa(va_arg(valist, double), buffer, -1);
+          puts_qemu(buffer);
+          break;
+        case '%': //%
+          puts_qemu("%%");
+        default: //Anything else
+          return 1;
+      }
+    }
+  }
+
+  va_end(valist);
+
+  return 0;
+}
 
 FILE *fopen(const char *path, const char *mode)
 {

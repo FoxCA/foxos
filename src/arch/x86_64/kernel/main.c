@@ -13,7 +13,12 @@
 #include <pci.h>
 #include <pic.h>
 
+#include <vga.h>
+#include <vesa.h>
+
 #include <string.h>
+#include <rtc.h>
+#include <spinlock.h>
 
 void *memcpy(void *dest, const void *src, size_t count)
 {
@@ -82,9 +87,25 @@ void outportl(uint16_t _port, uint32_t _data) {
     asm volatile ("outl %%eax, %%dx" : : "dN" (_port), "a" (_data));
 }
 
+char getch(){
+    char kbval;
+    while((kbval=keyboard_dequeue())==0);
+    return kbval;
+}
 
 void main()
 {   
+    #if GRAPHICS == 1 && SERIAL
+        //qemu serial
+        outportb(0x3f8 + 1, 0x00);
+        outportb(0x3f8 + 3, 0x80);
+        outportb(0x3f8 + 0, 0x03);
+        outportb(0x3f8 + 1, 0x00);
+        outportb(0x3f8 + 3, 0x03);
+        outportb(0x3f8 + 2, 0xC7);
+        outportb(0x3f8 + 4, 0x0B);
+    #endif
+
     init_video();
     autoscroll();
 
@@ -92,25 +113,24 @@ void main()
     printf("vga initialized...\n");
 
     settextcolor(yellow,black);
-    gdt_install();
+    gdt_init();
     settextcolor(green,black);
-    printf("global descriptor table installed...\n");
+    printf("global descriptor table initialized...\n");
     settextcolor(yellow,black);
-    idt_install();   
+    idt_init();   
     settextcolor(green,black);
-    printf("interrupt desctiptor table installed...\n");
+    printf("interrupt desctiptor table initialized...\n");
     settextcolor(yellow,black);
     isrs_install();
     settextcolor(green,black);
-    printf("interrupt service routines installed...\n");
+    printf("interrupt service routines initialized...\n");
+
+    #if 0
     settextcolor(yellow,black);
-    irq_install();
+    tss_init(5, 0x10, 0);
     settextcolor(green,black);
-    printf("interrupt requests initialized...\n");
-    settextcolor(yellow,black);
-    timer_install();
-    settextcolor(green,black);
-    printf("timer installed...\n");
+    printf("task state segment initialized...\n");
+    #endif
 
     settextcolor(yellow,black);
     keyboard_install();
@@ -133,7 +153,10 @@ void main()
     settextcolor(green,black);
     printf("heap set up...\n");
 
-    __asm__ __volatile__ ("sti");
+    settextcolor(yellow,black);
+    timer_init();
+    settextcolor(green,black);
+    printf("timer initialized...\n");
 
     #if FILESYSTEM
     settextcolor(yellow,black);
@@ -149,31 +172,46 @@ void main()
     settextcolor(green,black);
     printf("ata initialized...\n");
     settextcolor(yellow,black);
-    ext2_init("/dev/hdb", "/");
+    ext2_init("/dev/hda", "/");
     settextcolor(green,black);
     printf("filesystem initialized...\n");
     #endif
+    settextcolor(yellow,black);
+    rtc_init();
+    settextcolor(green,black);
+    printf("real-time clock initialized\n");
     
+
     settextcolor(yellow,black);
     uint32_t esp;
     asm volatile("mov %%esp, %0" : "=r"(esp));
-    
     settextcolor(green,black);
+
 
     printf("Fox Kernel ");
     printf(FOX_VERSION);
     printf(" loaded.\n");
-    printf("boot sequence complete (in %f  seconds)\n",timer_get_time_since_boot()/18.222);
+    printf("Current date and time: %s (may be wrong, didnt make timezones yet...)\n", get_current_datetime_str());
+    printf("boot sequence complete\n");
     printf("press any key to continue\n");
 
     autoscroll();
 
     settextcolor(white,black);
-    while(keyboard_dequeue()==0);    
+    getch() ; 
     cls();
 
     settextcolor(white,black);
-    application_start();
+    
+    #if GRAPHICS == 0
+        application_start();
+    #endif
+    #if GRAPHICS == 1
+        vesa_init();
+        gui_init();
+        application_start();
+    #endif
+
 
     for (;;);
 }

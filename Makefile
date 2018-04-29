@@ -11,10 +11,10 @@ grub_cfg := src/arch/$(arch)/grub/menu.lst
 grub_cfg_img := src/arch/$(arch)/grub/grub.cfg
 grub_timeout := 10
 
-CFLAGS= -m32 -Wall -O -Werror -fno-pie -fstrength-reduce -fomit-frame-pointer	\
+CFLAGS= -m32 -Wall -O -fno-pie -fstrength-reduce -fomit-frame-pointer	\
         -finline-functions -nostdinc -fno-builtin -ffreestanding		\
         -fno-stack-protector -c -Wno-unused-variable -Wno-maybe-uninitialized -Wno-error=varargs \
-        -Wno-error=discarded-qualifiers
+        -Wno-error=discarded-qualifiers -Wno-error=unused-function
 # Wunused-variable will be ignored!
 
 CFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
@@ -42,23 +42,23 @@ clean:
 
 runold: $(kernel)
 	@echo starting emulator...
-	@qemu-system-x86_64 -m 400M -kernel $(kernel) -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
+	@qemu-system-x86_64 -m 1G -kernel $(kernel) -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img -serial stdio
 
 boot:
 	@echo starting emulator...
-	@qemu-system-x86_64  -m 65536k -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda $(img) -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
+	@qemu-system-x86_64  -m 1G -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda $(img) -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
 
 run: $(img)
 	@echo starting emulator...
-	@qemu-system-x86_64 -m 400M -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda $(img) -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
+	@qemu-system-x86_64 -m 1G -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda $(img) -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
 
-runrel: $(img)
+runnoreboot: $(img)
 	@echo starting emulator...
-	@qemu-system-x86_64  -m 65536k -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda $(img) -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
+	@qemu-system-x86_64  -m 1G -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda $(img) -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img
 
 rundebug: $(kernel)
 	@echo starting emulator...
-	@qemu-system-x86_64 -s -S -m 65536k -device isa-debug-exit,iobase=0xf4,iosize=0x04
+	@qemu-system-x86_64 -s -S -m 400M -device isa-debug-exit,iobase=0xf4,iosize=0x04
 
 runv: $(img)
 	@virtualbox $(img)
@@ -74,7 +74,8 @@ iso: $(iso)
 
 config:
 	@echo generating config... 
-	@echo 'set color_highlight=magenta/blue\nset color_normal=white/blue\nset timeout=$(grub_timeout)\nset default=0\nmenuentry "foxos" {\n    multiboot /boot/$(kernel_fullname)\n}\nmenuentry "Shutdown" --class shutdown {\n    halt\n}\nmenuentry "Reboot" --class shutdown {\n    reboot\n}\n' > $(grub_cfg_img)
+	# @echo 'set color_highlight=magenta/blue\nset color_normal=white/blue\nset timeout=$(grub_timeout)\nset default=0\nmenuentry "foxos" {\n    multiboot /boot/$(kernel_fullname)\n}\nmenuentry "Shutdown" --class shutdown {\n    halt\n}\nmenuentry "Reboot" --class shutdown {\n    reboot\n}\n' > $(grub_cfg_img)
+	@echo 'set color_highlight=black/cyan\nset color_normal=white/cyan\nset timeout=$(grub_timeout)\nset default=0\nmenuentry "foxos" {\n    multiboot /boot/$(kernel_fullname)\n}\nmenuentry "Shutdown" --class shutdown {\n    halt\n}\nmenuentry "Reboot" --class shutdown {\n    reboot\n}\n' > $(grub_cfg_img)
 
 $(iso): $(kernel) $(grub_cfg)
 	@echo generating iso file...

@@ -3,8 +3,9 @@
 #ifndef __STRING_H__
 #define __STRING_H__
 
-#include <types.h>
+
 #include <list.h>
+#include <types.h>
 
 /* -- Prototypes ----------------------------------------------- */
 void nullString(char *s, int l);
@@ -18,7 +19,7 @@ int isdigit(char c);
 int isnumber(char * c);
 int isspace(char c);
 
-
+int starts_with(char *s1, char* s2);
 char *strcpy(char *dst, const char *src);
 char *strcat(char *dst, const char *src);
 int strcmp(const char *s1, const char *s2);

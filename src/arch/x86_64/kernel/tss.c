@@ -8,7 +8,7 @@ tss_entry_t kernel_tss;
 void tss_init(uint32_t idx, uint32_t kss, uint32_t kesp) {
 
     uint32_t base = (uint32_t)&kernel_tss;
-    gdt_set_gate(idx, base, base + sizeof(tss_entry_t), 0xE9, 0);
+    gdt_set_entry(idx, base, base + sizeof(tss_entry_t), 0xE9, 0);
     /* Kernel tss, access(E9 = 1 11 0 1 0 0 1)
         1   present
         11  ring 3
@@ -20,6 +20,7 @@ void tss_init(uint32_t idx, uint32_t kss, uint32_t kesp) {
     */
 
     memset(&kernel_tss, 0, sizeof(tss_entry_t));
+
     kernel_tss.ss0 = kss;
     // Note that we usually set tss's esp to 0 when booting our os, however, we need to set it to the real esp when we've switched to usermode because
     // the CPU needs to know what esp to use when usermode app is calling a kernel function(aka system call), that's why we have a function below called tss_set_stack
@@ -30,7 +31,7 @@ void tss_init(uint32_t idx, uint32_t kss, uint32_t kesp) {
     kernel_tss.fs = 0x13;
     kernel_tss.gs = 0x13;
     kernel_tss.ss = 0x13;
-    tss_flush();
+    tss_flush();    
 }
 
 /*

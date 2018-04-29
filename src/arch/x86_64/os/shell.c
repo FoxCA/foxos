@@ -301,21 +301,6 @@ unsigned char scan_keymap_index = scancode & 0b01111111; // The keymap scan inde
 }
 
 /*
- * This checks whether the input starts with a comparison string + ' '.
- * The function returns an int value where 0 represents it doesn't start with the comparison string,
- * and 1 if it does.
- */
-int starts_with(char *s1, char* s2)
-{
- 
-
-  if(strncmp(s1, s2, strlen(s2)) == 0){
-    return 1;
-  };
-  return 0;
-}
-
-/*
  * This is the main shell function called by the OS loader.
  * It returns an int value, which represents an error code.
  * 0 - If this is returned, something went very very wrong.
@@ -404,7 +389,7 @@ void getInput(char *buffer, int buf_size)
       case 0x00:
         continue;
       case '\n':
-        putchar(c);
+        puts("\n");
         *buffer = 0x00;
         return;   
         break;
@@ -447,9 +432,9 @@ void processInput(char *input)
     list_t * argv = str_split(input," ",0);
 
 
-    if(starts_with((char *)list_get_node_by_index(argv,0)->val, commands[i].prefix)){
+    if(strcmp((char *)list_get_node_by_index(argv,0)->val, commands[i].prefix)==0){
       if(list_size(argv) < commands[i].arguments){
-        printf("not enough arguments given\n");    
+        printf("not enough arguments given (expects\n");    
       }else{
         list_remove_by_index(argv, 0);
         if(commands[i].arguments == 0){

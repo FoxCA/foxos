@@ -31,10 +31,13 @@ void fox_cmd(){
 
 
 void vgatest_cmd(){
+	printf("\n");
     char hex[16] = {
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
-
+    char * names[16] = {
+    	"black","blue","green","cyan","red","magenta","brown","white","gray","lightblue","lightgreen","lightcyan","lightred","lightmagenta","yellow","brightwhite"
+	};
 
     for (int i = 0; i < 16; i++)
     {
@@ -46,6 +49,8 @@ void vgatest_cmd(){
         settextcolor(white, black);
         putchar(' ');
       }
+      settextcolor((unsigned char)i,(unsigned char)15-i);
+      puts(names[i]);
       putchar('\n');
     }
     return;
@@ -62,18 +67,38 @@ void clear_cmd(){
 }
 
 void color_cmd(list_t * argv, int argc){
+	int fg,bg,fgdetected=false,bgdetected=false;
+	char * names[16] = {
+		"black","blue","green","cyan","red","magenta","brown","white","gray","lightblue","lightgreen","lightcyan","lightred","lightmagenta","yellow","brightwhite"
+	};
 	// printf((char *)list_get_node_by_index(argv,0)->val);
 	// printf((char *)list_get_node_by_index(argv,1)->val);
-	int fg = atoi_hex((char *)list_get_node_by_index(argv,0)->val);
-	int bg = atoi_hex((char *)list_get_node_by_index(argv,1)->val);
+	for (int i = 0; i < 16; ++i)
+	{
+		if(strcmp((char *)list_get_node_by_index(argv,0)->val,names[i])==0){
+			fg = i;
+			fgdetected = true;
+		}
+		if(strcmp((char *)list_get_node_by_index(argv,1)->val,names[i])==0){
+			bg = i;
+			bgdetected = true;
+		}
+	}
+	if(!fgdetected){
+		fg = atoi_hex((char *)list_get_node_by_index(argv,0)->val);
+	}
+	if(!bgdetected){
+		bg = atoi_hex((char *)list_get_node_by_index(argv,1)->val);
+	}
 
 	shell_foreground_colour = fg % 16;
 	shell_background_colour = bg % 16;
 	settextcolor(fg%16,bg%16);
+	clear_cmd();
 }
 
 void time_cmd(){
-  printf("time since boot (seconds):%i\n\n",(int)(timer_get_time_since_boot()/18.222));
+  printf("time since boot (seconds):%f\n\n",(float)(timer_get_time_since_boot()));
 }
 
 void test_abort_cmd(){
@@ -138,12 +163,6 @@ void setup_commands(){
 	});
 
 	kcll_register_command((command){
-		"vgatest",
-		0,
-		{vgatest_cmd}
-	});
-
-	kcll_register_command((command){
 		"clear",
 		0,
 		{clear_cmd}
@@ -184,5 +203,11 @@ void setup_commands(){
 		"color",
 		2,
 		{color_cmd}
+	});
+
+	kcll_register_command((command){
+		"colors",
+		0,
+		{vgatest_cmd}
 	});
 }

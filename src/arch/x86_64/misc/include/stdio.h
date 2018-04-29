@@ -31,6 +31,7 @@ extern FILE *stdin;
 
 /* -- Prototypes ----------------------------------------------- */
 int printf(char *s, ...);
+int printf_qemu(char *s, ...);
 
 FILE *fopen(const char *path, const char *mode);
 int fgetc(FILE *stream);

@@ -129,12 +129,24 @@ char *strcat(char *dst, const char *src)
 
 int strcmp(const char *s1, const char *s2)
 {
- while ((*s1 == '\0' || *s2 == '\0') && (*s1 == *s2))
- {
-   s1++;
-   s2++;
- }
- return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+  for (int i = 0; ; i++)
+  {
+      if (s1[i] != s2[i])
+      {
+          return s1[i] < s2[i] ? -1 : 1;
+      }
+
+      if (s1[i] == '\0')
+      {
+          return 0;
+      }
+  }
+ // while ((*s1 == '\0' || *s2 == '\0') && (*s1 == *s2))
+ // {
+ //   s1++;
+ //   s2++;
+ // }
+ // return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
 
 int strncmp( const char * s1, const char * s2, size_t n )
@@ -180,6 +192,14 @@ int isnumber(char * c) {
 
 int isspace(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r';
+}
+
+int starts_with(char *s1, char* s2)
+{
+  if(strncmp(s1, s2, strlen(s2)) == 0){
+    return 1;
+  }
+  return 0;
 }
 
 list_t * str_split(char * str, const char * delim, unsigned int * numtokens) {

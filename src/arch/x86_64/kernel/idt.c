@@ -1,54 +1,29 @@
 
 #include <system.h>
+#include <idt.h>
+#include <string.h>
+#include <pic.h>
 
-/* Defines an IDT entry */
-struct idt_entry
-{
-    unsigned short base_lo;
-    unsigned short sel;
-    unsigned char always0;
-    unsigned char flags;
-    unsigned short base_hi;
-} __attribute__((packed));
+idt_entry_t idt_entries[NUM_IDT_ENTRIES];
+idt_ptr_t idt_ptr;
 
-struct idt_ptr
-{
-    unsigned short limit;
-    void *base;
-} __attribute__((packed));
+void idt_init() {
+    memset(idt_entries, 0, sizeof(idt_entries));
+    idt_ptr.base = (uint32_t)idt_entries;
+    idt_ptr.limit = sizeof(idt_entries) - 1;
+    pic_init();
 
-/* Declare an IDT of 256 entries.
-*  if any undefined IDT entry is hit, it normally
-*  will cause an "Unhandled Interrupt" exception. Any descriptor
-*  for which the 'presence' bit is cleared (0) will generate an
-*  "Unhandled Interrupt" exception */
-struct idt_entry idt[256];
-struct idt_ptr idtp;
+    irq_install();
 
-/* This exists in 'start.asm', and is used to load our IDT */
-extern void idt_load();
-
-void idt_set_gate(unsigned char num, unsigned long base, unsigned short sel, unsigned char flags)
-{
-    idt[num].base_lo = (base & 0xFFFF);
-    idt[num].base_hi = (base >> 16) & 0xFFFF;
-
-    idt[num].sel = sel;
-    idt[num].always0 = 0;
-    idt[num].flags = flags;
+    idt_flush((uint32_t)&(idt_ptr));
+    asm volatile("sti");
 }
 
-void idt_install()
-{
-    /* Sets the special IDT pointer up, just like in 'gdt.c' */
-    idtp.limit = (sizeof (struct idt_entry) * 256) - 1;
-    idtp.base = &idt;
-
-    /* Clear out the entire IDT, initializing it to zeros */
-    memset(&idt, 0, sizeof(struct idt_entry) * 256);
-
-    /* Add any new ISRs to the IDT here using idt_set_gate */
-
-    /* Points the processor's internal register to the new IDT */
-    idt_load();
+void idt_set_entry(int index, uint32_t base, uint16_t sel, uint8_t flags) {
+    idt_entry_t * this = &idt_entries[index];
+    this->base_lo = base & 0xFFFF;
+    this->base_hi = (base >> 16) & 0xFFFF;
+    this->always0 = 0;
+    this->sel = sel;
+    this->flags = flags | 0x60;
 }

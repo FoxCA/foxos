@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <system.h>
 #include <vga.h>
+#include <draw.h>
 
 int attrib = 0x0F;
 int csr_x = 0, csr_y = 0;
-int doautoscoll = 0; 
+int doautoscoll = 0;
 
 void autoscroll(){
     doautoscoll = 0;
@@ -85,6 +86,9 @@ void move_csr(void)
 
 void cls()
 {
+    if(vesa_initialized){
+        return vesa_cls();
+    }
     
     unsigned blank;
     int i;
@@ -98,9 +102,34 @@ void cls()
     move_csr();    
 }
 
+int is_transmit_empty() {
+   return inportb(0x3f8 + 5) & 0x20;
+}
+
+void putch_qemu(char c){
+    while (is_transmit_empty() == 0);
+    outportb(0x3f8,c);
+}
+
+int puts_qemu(char * text){
+
+    int i;
+
+    for (i = 0; i < strlen(text); i++){
+        putch_qemu(text[i]);
+    }
+
+    return i;
+
+}
+
+
 void putch(char c)
 {
-  
+    if(vesa_initialized){
+        return vesa_putch(c);
+    }
+
     unsigned short *where;
     unsigned att = attrib << 8;
 
