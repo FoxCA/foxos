@@ -299,8 +299,7 @@ void ata_device_detect(ata_dev_t * dev, int primary) {
     }
 
     // Read 256 words(don't care the return value)
-    int i;
-    for(i = 0; i < 256; i++) inports(dev->data);
+    for(int i = 0; i < 256; i++) inports(dev->data);
 
     uint32_t pci_command_reg = pci_read(ata_device, PCI_COMMAND);
     if(!(pci_command_reg & (1 << 2))) {
@@ -316,13 +315,21 @@ void ata_init() {
     // First, find pci device
     ata_device = pci_get_device(ATA_VENDOR_ID, ATA_DEVICE_ID, -1);
 
+    printf("hey1\n");
     // Second, install irq handler
     irq_install_handler(32 + 14, ata_handler);
+    printf("hey2\n");
 
     // Third, detect four ata devices
     ata_device_detect(&primary_master, 1);
+    printf("hey3\n");
     ata_device_detect(&primary_slave, 1);
+    printf("hey4\n");
     ata_device_detect(&secondary_master, 0);
+    printf("hey5\n");
     ata_device_detect(&secondary_slave, 0);
+    printf("hey6\n");
+
+    for(;;);
 
 }

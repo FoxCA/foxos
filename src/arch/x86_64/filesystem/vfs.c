@@ -51,8 +51,7 @@ void print_vfstree_recur(treenode_t * node, int parent_offset) {
     //db_print();
     int len = 0;
     memset(tmp, 0, 512);
-    uint32_t i;
-    for (i = 0; i < parent_offset; ++i) {
+    for (uint32_t i = 0; i < parent_offset; ++i) {
         strcat(tmp, " ");
     }
     char * curr = tmp + strlen(tmp);
@@ -62,7 +61,7 @@ void print_vfstree_recur(treenode_t * node, int parent_offset) {
     } else {
         printf(curr, "%s(empty)", fnode->name);
     }
-    printf("%s\n\n", tmp);
+    printf("%s\n", tmp);
     len = strlen(fnode->name);
     free(tmp);
     foreach(child, node->children) {
@@ -276,6 +275,12 @@ char *expand_path(char *input) {
     return ret;
 }
 
+/*
+ * Helper function for file_open
+ * Given a filename, return the vfs_node_t of the path on which it's mounted
+ * For example, in our case /home/szhou42 is mounted on the vfs_node_t with path "/" (ext2 is mounted for root dir)
+ *
+ * */
 vfs_node_t * get_mountpoint_recur(char ** path, treenode_t * subroot) {
     int found = 0;
     char * curr_token = strsep(path, "/");
@@ -388,7 +393,7 @@ void vfs_mount_recur(char * path, treenode_t * subroot, vfs_node_t * fs_obj) {
         // return the subroot, it's where u should mount!
         struct vfs_entry * ent = (struct vfs_entry*)subroot->value;
         if(ent->file) {
-            printf("The path is already mounted, please unmount before mounting again\n");
+            printf("The path is already mounted, plz unmount before mounting again\n");
             return;
         }
         if(!strcmp(ent->name, "/")) vfs_root = fs_obj; // Keep a shortcut for root node
@@ -423,7 +428,7 @@ void vfs_mount(char * path, vfs_node_t * fs_obj) {
     if(path[0] == '/' && strlen(path) == 1) {
         struct vfs_entry * ent = (struct vfs_entry*)vfs_tree->root->value;
         if(ent->file) {
-            printf("The path is already mounted, please unmount before mounting again\n");
+            printf("The path is already mounted, plz unmount before mounting again\n");
             return;
         }
         vfs_root = fs_obj; // Keep a shortcut for root node

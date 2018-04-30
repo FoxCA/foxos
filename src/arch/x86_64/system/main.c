@@ -23,23 +23,25 @@ void main()
     gdt_init();
     settextcolor(green,black);
     printf("global descriptor table initialized...\n");
+    
     settextcolor(yellow,black);
     idt_init();   
     settextcolor(green,black);
     printf("interrupt desctiptor table initialized...\n");
+    
     settextcolor(yellow,black);
     isrs_install();
     settextcolor(green,black);
     printf("interrupt service routines initialized...\n");
 
-
     //not loading this, it crashes :P
-    #if 0
+    #if 1
     settextcolor(yellow,black);
     tss_init(5, 0x10, 0);
     settextcolor(green,black);
     printf("task state segment initialized...\n");
     #endif
+
 
     settextcolor(yellow,black);
     keyboard_install();
@@ -67,6 +69,12 @@ void main()
     settextcolor(green,black);
     printf("timer initialized...\n");
 
+
+    settextcolor(yellow,black);
+    bios32_init();
+    settextcolor(green,black);
+    printf("bios32 driver initialized...\n");
+
     #if FILESYSTEM
     settextcolor(yellow,black);
     pci_init();
@@ -81,7 +89,7 @@ void main()
     settextcolor(green,black);
     printf("ata initialized...\n");
     settextcolor(yellow,black);
-    ext2_init("/dev/hdb", "/");
+    ext2_init("/dev/hda", "/");
     settextcolor(green,black);
     printf("filesystem initialized...\n");
     #endif
@@ -90,10 +98,20 @@ void main()
     settextcolor(green,black);
     printf("real-time clock initialized\n");
     
+    settextcolor(yellow,black);
+    process_init();
+    settextcolor(green,black);
+    printf("processes initialized\n");
+
+    settextcolor(yellow,black);
+    syscall_init();
+    settextcolor(green,black);
+    printf("syscalls initialized\n");
 
     settextcolor(yellow,black);
     uint32_t esp;
     asm volatile("mov %%esp, %0" : "=r"(esp));
+    tss_set_stack(0x10, esp);
     settextcolor(green,black);
 
 
@@ -107,13 +125,13 @@ void main()
     autoscroll();
 
     settextcolor(white,black);
-    getc() ; 
+    getc(); 
     cls();
 
     settextcolor(white,black);
     
     #if GRAPHICS == 0
-        kcll_start();
+        create_process_from_routine(kcll_start,"user process");
     #endif
     #if GRAPHICS == 1
         vesa_init();

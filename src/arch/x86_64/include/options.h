@@ -17,7 +17,7 @@ else: longer names
 
 //0:no fs
 //1:fs
-#define FILESYSTEM 0
+#define FILESYSTEM 1
 
 //0:VGA
 //1:VESA

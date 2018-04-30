@@ -555,8 +555,7 @@ void write_disk_block(ext2_fs_t * ext2fs, uint32_t block, char * buf) {
 }
 
 void rewrite_bgds(ext2_fs_t * ext2fs) {
-    uint32_t i;
-    for(i = 0; i < ext2fs->bgd_blocks; i++)
+    for(uint32_t i = 0; i < ext2fs->bgd_blocks; i++)
         write_disk_block(ext2fs, 2, (void*)ext2fs->bgds + i * ext2fs->block_size);
 }
 
@@ -631,10 +630,10 @@ done:
  * Note that iblock refers to the linear block address of the inode, whereas dblock refers to the block on disk
  * */
 void set_disk_block_number(ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_idx, uint32_t inode_block, uint32_t disk_block) {
-    uint32_t p = ext2fs->block_size / 4;
+    unsigned int p = ext2fs->block_size / 4;
     int a, b, c, d, e, f, g;
     int iblock = inode_block;
-    uint32_t * tmp = kmalloc(ext2fs->block_size);
+    unsigned int * tmp = kmalloc(ext2fs->block_size);
 
     a = iblock - EXT2_DIRECT_BLOCKS;
     if(a <= 0) {
@@ -690,18 +689,17 @@ done:
 uint32_t ext2_alloc_block(ext2_fs_t * ext2fs) {
     uint32_t * buf = kcalloc(ext2fs->block_size, 1);
     // Read the inode bitmap, find free inode, return its index
-    uint32_t i, j, k;
-    for(i = 0; i < ext2fs->total_groups; i++) {
+    for(uint32_t i = 0; i < ext2fs->total_groups; i++) {
         if(!ext2fs->bgds[i].free_blocks)
             continue;
 
         uint32_t bitmap_block = ext2fs->bgds[i].block_bitmap;
         read_disk_block(ext2fs, bitmap_block, (void*)buf);
-        for(j = 0; j < ext2fs->block_size / 4; j++) {
+        for(uint32_t j = 0; j < ext2fs->block_size / 4; j++) {
             uint32_t sub_bitmap = buf[j];
             if(sub_bitmap == 0xFFFFFFFF)
                 continue;
-            for(k = 0; k < 32; k++) {
+            for(uint32_t k = 0; k < 32; k++) {
                 uint32_t free = !((sub_bitmap >> k) & 0x1);
                 if(free) {
                     // Set bitmap and return
@@ -765,21 +763,20 @@ void free_inode_block(ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_idx, u
 /*
  * Allocate an inode from inode bitmap
  * */
-    uint32_t alloc_inode(ext2_fs_t * ext2fs) {
+uint32_t alloc_inode(ext2_fs_t * ext2fs) {
     uint32_t * buf = kcalloc(ext2fs->block_size, 1);
     // Read the inode bitmap, find free inode, return its index
-    uint32_t i, j, k;
-    for(i = 0; i < ext2fs->total_groups; i++) {
+    for(uint32_t i = 0; i < ext2fs->total_groups; i++) {
         if(!ext2fs->bgds[i].free_inodes)
             continue;
 
         uint32_t bitmap_block = ext2fs->bgds[i].inode_bitmap;
         read_disk_block(ext2fs, bitmap_block, (void*)buf);
-        for(j = 0; j < ext2fs->block_size / 4; j++) {
+        for(uint32_t j = 0; j < ext2fs->block_size / 4; j++) {
             uint32_t sub_bitmap = buf[j];
             if(sub_bitmap == 0xFFFFFFFF)
                 continue;
-            for(k = 0; k < 32; k++) {
+            for(uint32_t k = 0; k < 32; k++) {
                 uint32_t free = !((sub_bitmap >> k) & 0x1);
                 if(free) {
                     // Set bitmap and return
@@ -888,8 +885,7 @@ void ext2_init(char * device_path, char * mountpoint) {
         ext2fs->bgd_blocks++;
 
     ext2fs->bgds = kcalloc(sizeof(bgd_t), ext2fs->bgd_blocks * ext2fs->block_size);
-    uint32_t i;
-    for(i = 0; i < ext2fs->bgd_blocks; i++) {
+    for(uint32_t i = 0; i < ext2fs->bgd_blocks; i++) {
         read_disk_block(ext2fs, 2, (void*)ext2fs->bgds + i * ext2fs->block_size);
     }
 

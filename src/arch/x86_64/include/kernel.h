@@ -62,6 +62,8 @@
 #include <tss.h>
 #include <process.h>
 #include <pic.h>
+#include <usermode.h>
+#include <thread.h>
 
 //filesystem
 #include <ata.h>
@@ -76,5 +78,11 @@
 //kcll
 #include <kcll_keyboard.h>
 #include <kcll.h>
+
+//bios
+#include <bios32.h>
+
+//syscall
+#include <syscall.h>
 
 #endif

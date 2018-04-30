@@ -1,5 +1,4 @@
 
-[bits 16]
 global tss_flush
 tss_flush:
     mov ax, 0x28

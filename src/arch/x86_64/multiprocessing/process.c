@@ -52,7 +52,7 @@ void context_switch(regs * p_regs, context_t * n_regs) {
  * This function is registered to the timer wakeup list, so it will be wakeup every 2/18 seconds
  * */
 void schedule() {
-    printf("Process Scheduler running\n");
+    printf_qemu("Process Scheduler running\n");
     pcb_t * next;
     if(!list_size(process_list)){
         return;
@@ -86,7 +86,7 @@ void schedule() {
     if(current_process == NULL){
         PANIC("no process left, did you exit all user process ??? Never exit the userspace init process!!!!");
     }
-    printf("Scheduler chose %s to run at 0x%08x\n", current_process->filename, current_process->regs.eip);
+    printf("Scheduler chose %s to run at 0x%i\n", current_process->filename, current_process->regs.eip);
     context_switch(&saved_context, &next->regs);
 }
 
@@ -139,13 +139,13 @@ void create_process_from_routine(void * routine, char * name) {
     p1->page_dir = kmalloc_a(sizeof(page_directory_t));
     memset(p1->page_dir, 0, sizeof(page_directory_t));
     copy_page_directory(p1->page_dir, kpage_dir);
-     allocate_region(p1->page_dir, 0xC0000000 - 4 * PAGE_SIZE, 0xC0000000, 0, 0, 1);
+    allocate_region(p1->page_dir, 0xC0000000 - 4 * PAGE_SIZE, 0xC0000000, 0, 0, 1);
     p1->regs.cr3 = (uint32_t)virtual2phys(kpage_dir, p1->page_dir);
     p1->state = TASK_CREATED;
     if(!current_process)
         current_process = p1;
     p1->self = list_insert_front(process_list, p1);
-    printf("%s created\n", name);
+    printf("%s created\n\n", name);
 }
 
 /*

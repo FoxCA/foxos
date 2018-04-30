@@ -1,6 +1,8 @@
 #ifndef VFS_H
 #define VFS_H
 #include <stdint.h>
+#include <tree.h>
+#include <list.h>
 
 
 #define PATH_SEPARATOR '/'
@@ -101,7 +103,6 @@ typedef struct vfs_entry {
     char * name;
     vfs_node_t * file;
 }vfs_entry_t;
-
 
 
 uint32_t vfs_get_file_size(vfs_node_t * node);
