@@ -112,8 +112,9 @@ pci_dev_t pci_scan_device(uint16_t vendor_id, uint16_t device_id, uint32_t bus, 
 
 	if(pci_reach_end(dev))
 		return dev_zero;
-
-	for(int function = 1; function < FUNCTION_PER_DEVICE; function++) {
+	
+	int function;
+	for(function = 1; function < FUNCTION_PER_DEVICE; function++) {
 		if(pci_read(dev,PCI_VENDOR_ID) != PCI_NONE) {
 			t = pci_scan_function(vendor_id, device_id, bus, device, function, device_type);
 			if(t.bits)
@@ -126,7 +127,8 @@ pci_dev_t pci_scan_device(uint16_t vendor_id, uint16_t device_id, uint32_t bus, 
  * Scan bus
  * */
 pci_dev_t pci_scan_bus(uint16_t vendor_id, uint16_t device_id, uint32_t bus, int device_type) {
-	for(int device = 0; device < DEVICE_PER_BUS; device++) {
+	int device;
+	for(device = 0; device < DEVICE_PER_BUS; device++) {
 		pci_dev_t t = pci_scan_device(vendor_id, device_id, bus, device, device_type);
 		if(t.bits)
 			return t;
@@ -148,7 +150,8 @@ pci_dev_t pci_get_device(uint16_t vendor_id, uint16_t device_id, int device_type
 	if(pci_reach_end(dev_zero)) {
 		printf("PCI Get device failed...\n");
 	}
-	for(int function = 1; function < FUNCTION_PER_DEVICE; function++) {
+	int function;
+	for(function = 1; function < FUNCTION_PER_DEVICE; function++) {
 		pci_dev_t dev = {0};
 		dev.function_num = function;
 

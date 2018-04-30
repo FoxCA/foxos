@@ -24,7 +24,5 @@ else: longer names
 #define GRAPHICS 0
 
 
-//REM
-#define SERIAL 1
 
 #endif

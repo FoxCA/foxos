@@ -282,7 +282,8 @@ ret:
  * Copy a page directory
  * */
 void copy_page_directory(page_directory_t * dst, page_directory_t * src) {
-    for(uint32_t i = 0; i < 1024; i++) {
+    uint32_t i;
+    for(i = 0; i < 1024; i++) {
         if(kpage_dir->ref_tables[i] == src->ref_tables[i]) {
             // Link kernel pages
             dst->tables[i] = src->tables[i];
@@ -304,7 +305,8 @@ void copy_page_directory(page_directory_t * dst, page_directory_t * src) {
  * */
 page_table_t * copy_page_table(page_directory_t * src_page_dir, page_directory_t * dst_page_dir, uint32_t page_dir_idx, page_table_t * src) {
     page_table_t * table = (page_table_t*)kmalloc_a(sizeof(page_table_t));
-    for(int i = 0; i < 1024; i++) {
+    int i;
+    for(i = 0; i < 1024; i++) {
         if(!table->pages[i].frame)
             continue;
         // Source frame's virtual address

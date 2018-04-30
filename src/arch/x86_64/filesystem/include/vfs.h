@@ -122,7 +122,7 @@ void vfs_mkfile(char *name, uint16_t permission);
 
 int vfs_create_file(char *name, uint16_t permission);
 
-vfs_node_t *file_open(const char *file_name, uint32_t flags);
+vfs_node_t *file_open(char *file_name, uint32_t flags);
 
 char *expand_path(char *input);
 

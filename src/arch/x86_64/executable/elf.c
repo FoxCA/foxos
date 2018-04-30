@@ -46,7 +46,8 @@ void do_elf_load() {
     }
 
     // Go through all loadable segments and calculate the size needed by the executable image
-    for(uint32_t i = 0; i < head->e_phnum; i++) {
+    uint32_t  i;
+    for(i = 0; i < head->e_phnum; i++) {
         if(prgm_head->p_type == PT_LOAD) {
             seg_begin = prgm_head->p_vaddr;
             seg_end= seg_begin + prgm_head->p_memsz;

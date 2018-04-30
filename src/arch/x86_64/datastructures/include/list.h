@@ -15,7 +15,7 @@ typedef struct list{
 
 #include <tree.h>
 
-#define foreach(t, list) for(listnode_t * t = list->head; t != NULL; t = t->next)
+#define foreach(t, list) listnode_t * t; for(t = list->head; t != NULL; t = t->next)
 
 list_t * list_create();
 

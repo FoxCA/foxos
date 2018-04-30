@@ -51,7 +51,8 @@ void print_vfstree_recur(treenode_t * node, int parent_offset) {
     //db_print();
     int len = 0;
     memset(tmp, 0, 512);
-    for (uint32_t i = 0; i < parent_offset; ++i) {
+    uint32_t i;
+    for (i = 0; i < parent_offset; ++i) {
         strcat(tmp, " ");
     }
     char * curr = tmp + strlen(tmp);
@@ -326,7 +327,7 @@ vfs_node_t * get_mountpoint(char ** path) {
 /*
  * Given filename, return a vfs_node(Then you can do reading/writing on the file! Pretty much like fopen)
  * */
-vfs_node_t *file_open(const char * file_name, uint32_t flags) {
+vfs_node_t *file_open(char * file_name, uint32_t flags) {
     /* First, find the mountpoint of the file(i.e find which filesystem the file belongs to so that vfs can call the right functions for accessing directory/files)
      Since the vfs tree doesn't store directory tree within a physical filesystem(i.e when ext2 is mounted on /abc, the vfs tree doesn't maintain any sub-directories under /abc),
      we will need to traverse the tree using callback provided by physical filesystem(ext2 for example)

@@ -14,7 +14,7 @@ grub_timeout := 10
 CFLAGS= -m32 -Wall -O -fno-pie -fstrength-reduce -fomit-frame-pointer	\
         -finline-functions -nostdinc -fno-builtin -ffreestanding		\
         -fno-stack-protector -c -Wno-unused-variable -Wno-maybe-uninitialized -Wno-error=varargs \
-        -Wno-error=discarded-qualifiers -Wno-error=unused-function
+		-Wno-error=unused-function
 # Wunused-variable will be ignored!
 
 CFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
@@ -44,6 +44,11 @@ runold: $(kernel)
 	@echo starting emulator...
 	@./mkext2image.sh
 	@qemu-system-x86_64 -m 1G -kernel $(kernel) -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img -serial stdio
+
+runc9: $(kernel)
+	@echo starting emulator...
+	@qemu-system-x86_64 -m 1G -kernel $(kernel) -curses -device isa-debug-exit,iobase=0xf4,iosize=0x04 -hda ext2_hda.img -hdb ext2_hdb.img -hdc ext2_hdc.img -hdd ext2_hdd.img -serial stdio
+
 
 boot:
 	@echo starting emulator...

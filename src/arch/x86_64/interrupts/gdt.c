@@ -3,6 +3,9 @@
 gdt_entry_t gdt_entries[NUM_DESCRIPTORS];
 gdt_ptr_t   gdt_ptr;
 
+/*
+ * Initializes the Global Descriptor Table.
+ */
 void gdt_init() {
     gdt_ptr.limit = sizeof(gdt_entries) - 1;
     gdt_ptr.base = (uint32_t)gdt_entries;
@@ -30,6 +33,9 @@ void gdt_init() {
     gdt_flush((uint32_t)(&gdt_ptr));
 }
 
+/*
+ * Sets an entry in the GDT.
+ */
 void gdt_set_entry(int index, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran) {
     gdt_entry_t * this = &gdt_entries[index];
 

@@ -1,9 +1,11 @@
 # Fox
-Fox is a x86_64 kernel and OS developed mainly by jonay2000 and with some help by Sarah.
+Fox is a x86_64 kernel and OS developed mainly by [Jona](https://github.com/jonay2000) and [Sarah](https://github.com/SarahIsWeird) with help by [Dael](https://github.com/daelvn).
+
+Compilation on Windows is a pain in the ass, so don't even bother... Why are you not using Linux anyways?
 
 ## Running it
 
-Dependencies (Only \*nix systems, includes macOS, Windows will follow eventually.)
+Dependencies (Only \*nix systems, includes macOS.)
 - nasm
 - qemu\*
 - VirtualBox\*

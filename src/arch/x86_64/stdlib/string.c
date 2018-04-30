@@ -6,7 +6,8 @@ nulls a sring given a pointer to the string and a length
 */
 void nullString(char *s, int l)
 {
-	for (int i = 0; i != l; i++)
+    int i;
+	for (i = 0; i != l; i++)
 	{
 		*s = 0x00;
 		s++;
@@ -51,7 +52,8 @@ compares 2 strings. returns 0 if they are the same
 */
 int strcmp(char *s1, char *s2)
 {
-  for (int i = 0; ; i++)
+  int i;
+  for (i = 0; ; i++)
   {
       if (s1[i] != s2[i])
       {
@@ -92,7 +94,8 @@ returns the length of a string
 */
 int strlen(char *str)
 {
-	for (int i = 0;; i++)
+	int i;
+	for (i = 0;; i++)
 	{
 		if (str[i] == '\0') return i;
 	}

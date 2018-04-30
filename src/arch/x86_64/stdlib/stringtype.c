@@ -6,7 +6,8 @@ int isdigit(char c) {
 }
 
 int isnumber(char * c) {
-  for (int i = 0; c[i] != '\0'; ++i)
+  int i;
+  for (i = 0; c[i] != '\0'; ++i)
   {
     if(!(isdigit(c[i]) || isspace(c[i]))){
       return 0;

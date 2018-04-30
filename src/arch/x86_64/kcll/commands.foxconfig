@@ -27,10 +27,10 @@ void vgatest_cmd(){
     char * names[16] = {
     	"black","blue","green","cyan","red","magenta","brown","white","gray","lightblue","lightgreen","lightcyan","lightred","lightmagenta","yellow","brightwhite"
 	};
-
-    for (int i = 0; i < 16; i++)
+	int i,j;
+    for (i = 0; i < 16; i++)
     {
-      for (int j = 0; j < 16; j++)
+      for (j = 0; j < 16; j++)
       {
         settextcolor((unsigned char)i, (unsigned char)j);
         putc(hex[i]);
@@ -47,7 +47,8 @@ void vgatest_cmd(){
 
 void clear_cmd(){
   set_csr_xy(0, 0);
-  for (int i = 0; i <= 80*25; i++)
+  int i;
+  for (i = 0; i <= 80*25; i++)
   {
     printf(" ");
   }
@@ -62,7 +63,8 @@ void color_cmd(list_t * argv, int argc){
 	};
 	// printf((char *)list_get_node_by_index(argv,0)->val);
 	// printf((char *)list_get_node_by_index(argv,1)->val);
-	for (int i = 0; i < 16; ++i)
+	int i;
+	for (i = 0; i < 16; ++i)
 	{
 		if(strcmp((char *)list_get_node_by_index(argv,0)->val,names[i])==0){
 			fg = i;

@@ -40,7 +40,9 @@ void irq_uninstall_handler(int irq)
     irq_routines[irq] = 0;
 }
 
-
+/*
+ * Remaps the IRQs so they are usable.
+ */
 void irq_remap(void)
 {
     outportb(0x20, 0x11);
@@ -55,6 +57,9 @@ void irq_remap(void)
     outportb(0xA1, 0x0);
 }
 
+/*
+ * Installs the IRQs.
+ */
 void irq_install()
 {
     
@@ -79,7 +84,9 @@ void irq_install()
     idt_set_entry(47, (unsigned)irq15, 0x08, 0x8E);
 }
 
-
+/*
+ * This is the default IRQ handler which calls the child interrupt handlers.
+ */
 void irq_handler(struct regs *r)
 {
     void (*handler)(struct regs *r);

@@ -39,7 +39,7 @@ void vga_set_csr_xy(int x, int y)
 void vga_scroll(void)
 {
     unsigned blank, temp;
-
+    
     blank = 0x20 | (attrib << 8);
 
     if(csr_y >= vga_height)
@@ -51,7 +51,8 @@ void vga_scroll(void)
         }else if(keyboard_initialized() && doautoscoll == 2){
             while(keyboard_dequeue() == 0);
         }else if(doautoscoll == 3){
-            for (int i = 0; i < 400000000; ++i);
+            int i;
+            for (i = 0; i < 400000000; ++i);
         }
         temp = csr_y - vga_height + 1;
         memcpy (vga_SCREEN, vga_SCREEN + temp * vga_width, (vga_height - temp) * vga_width * 2);

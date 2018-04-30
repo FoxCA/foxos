@@ -95,7 +95,8 @@ void getInput(char *buffer, int buf_size)
     }
     
     c = keyboard_dequeue();  
-    switch(c){
+    switch(c)
+    {
       // case 0x48://up arrow
       //   while(--counter>=0){
       //     buffer--;
@@ -126,42 +127,51 @@ void getInput(char *buffer, int buf_size)
         shouldprint = true;
     }
     
-    if(c != 8){
+    if(c != 8)
+    {
       counter++;
       *(buffer++) = c;
     }
 
-    if(counter >= 0 && shouldprint){
+    if(counter >= 0 && shouldprint)
+    {
       putc(c);
     }
   }
 }
 
-/*
- * This processes all input. When malloc() is done, it will be dynamic, but for now, it's static interpretation.
- */
-
-void kcll_register_command(struct command c){
+void kcll_register_command(struct command c)
+{
   commands[commandcurrent] = c;
   commandcurrent++;
 }
 
-
+/*
+ * This processes all input. It takes in a null-terminated string and calls the appropriate command.
+ */
 void processInput(char *input)
 {
-  for (int i = 0; i < commandcurrent; ++i)
+  int i;
+  for (i = 0; i < commandcurrent; ++i)
   {
     list_t * argv = str_split(input," ",0);
 
-
-    if(strcmp((char *)list_get_node_by_index(argv,0)->val, commands[i].prefix)==0){
-      if(list_size(argv) < commands[i].arguments){
-        printf("not enough arguments given (expects %i)\n",commands[i].arguments);    
-      }else{
+    if(strcmp((char *)list_get_node_by_index(argv,0)->val, commands[i].prefix)==0)
+    {
+      if(list_size(argv) < commands[i].arguments)
+      {
+        printf("Not enough arguments given. %i expected, got %i\n",commands[i].arguments, list_size(argv));    
+      }
+      else
+      {
         list_remove_by_index(argv, 0);
-        if(commands[i].arguments == 0){
+        
+        if(commands[i].arguments == 0)
+        {
           commands[i].callback.noargv();
-        }else{ 
+        }
+        else
+        { 
           commands[i].callback.argv(argv,list_size(argv));
         }
       }

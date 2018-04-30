@@ -1,5 +1,5 @@
-
 #include <kernel.h>
+
 /* These are function prototypes for all of the exception
 *  handlers: The first 32 entries in the IDT are reserved
 *  by Intel, and are designed to service exceptions! */
