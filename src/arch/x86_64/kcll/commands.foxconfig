@@ -130,7 +130,7 @@ void mkdir_cmd(){
 void minesweeper_cmd()
 {
 	clear_cmd();
-	settextcolor(b, 0); // turquoise text, black background
+	settextcolor(cyan, 0); // turquoise text, black background
 	printf("Minesweeper v0.1");
 }
 

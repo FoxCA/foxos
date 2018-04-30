@@ -254,6 +254,32 @@ void ata_device_init(ata_dev_t * dev, int primary) {
     // Primary master(hda, 00), primary slave(hdb, 01), secondary master(hdc, 10), secondary slave(hdd, 11)
     dev->mountpoint[strlen(dev->mountpoint)] = 'a' + (((!primary) << 1) | dev->slave);
 }
+
+void print_ata_dev(ata_dev_t * dev){
+    printf("data: %i\n",dev->data);
+    printf("error: %i\n",dev->error);
+    printf("sector_count: %i\n",dev->sector_count);
+    printf("sector_num: %i\n",dev->sector_num);
+    printf("cylinder_low: %i\n",dev->cylinder_low);
+    printf("cylinder_high: %i\n",dev->cylinder_high);
+    printf("drive: %i\n",dev->drive);
+    printf("command: %i\n",dev->command);
+    printf("control: %i\n",dev->control);
+    printf("slave: %i\n",dev->slave);
+    printf("bar4: %i\n",dev->bar4);
+    printf("BMR_COMMAND: %i\n",dev->BMR_COMMAND);
+    printf("BMR_prdt: %i\n",dev->BMR_prdt);
+    printf("BMR_STATUS: %i\n",dev->BMR_STATUS);
+    printf("buffer_phys: %i\n",dev->prdt->buffer_phys);
+    printf("transfer_size: %i\n",dev->prdt->transfer_size);
+    printf("mark_end: %i\n",dev->prdt->mark_end);
+    printf("prdt_phys: %i\n",dev->prdt_phys);
+    printf("mem_buffer: %i\n",dev->mem_buffer);
+    printf("prdt_phys: %i\n",dev->prdt_phys);
+    printf("mem_buffer_phys: %i\n",dev->mem_buffer_phys);
+    printf("mountpoint: %s\n",dev->mountpoint);
+}
+
 /*
  * This function follows the following article to detect an ata device
  * http://wiki.osdev.org/ATA_PIO_Mode#IDENTIFY_command
@@ -274,11 +300,16 @@ void ata_device_detect(ata_dev_t * dev, int primary) {
     outportb(dev->lba_high, 0);
     // Send identify command to command port
 
+    print_ata_dev(dev);
     outportb(dev->command, COMMAND_IDENTIFY);
+    // for(;;);
+
+
     if(!inportb(dev->status)) {
         printf("ata_detect_device: device does not exist\n");
         return;
     }
+
 
     uint8_t lba_lo = inportb(dev->lba_lo);
     uint8_t lba_hi = inportb(dev->lba_high);
@@ -315,21 +346,15 @@ void ata_init() {
     // First, find pci device
     ata_device = pci_get_device(ATA_VENDOR_ID, ATA_DEVICE_ID, -1);
 
-    printf("hey1\n");
     // Second, install irq handler
     irq_install_handler(32 + 14, ata_handler);
-    printf("hey2\n");
 
     // Third, detect four ata devices
     ata_device_detect(&primary_master, 1);
-    printf("hey3\n");
+    //pf
     ata_device_detect(&primary_slave, 1);
-    printf("hey4\n");
+    //pf
     ata_device_detect(&secondary_master, 0);
-    printf("hey5\n");
     ata_device_detect(&secondary_slave, 0);
-    printf("hey6\n");
-
-    for(;;);
 
 }

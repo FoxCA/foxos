@@ -86,7 +86,7 @@ void schedule() {
     if(current_process == NULL){
         PANIC("no process left, did you exit all user process ??? Never exit the userspace init process!!!!");
     }
-    printf("Scheduler chose %s to run at 0x%i\n", current_process->filename, current_process->regs.eip);
+    printf_qemu("Scheduler chose %s to run at 0x%i\n", current_process->filename, current_process->regs.eip);
     context_switch(&saved_context, &next->regs);
 }
 
