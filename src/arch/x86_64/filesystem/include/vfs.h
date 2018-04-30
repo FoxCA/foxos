@@ -1,7 +1,6 @@
 #ifndef VFS_H
 #define VFS_H
-#include <generic_tree.h>
-#include <list.h>
+#include <stdint.h>
 
 
 #define PATH_SEPARATOR '/'

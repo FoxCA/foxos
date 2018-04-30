@@ -1,5 +1,6 @@
 #ifndef EXT2_H
 #define EXT2_H
+#include <stdint.h>
 #include <vfs.h>
 
 #define EXT2_DIRECT_BLOCKS 12

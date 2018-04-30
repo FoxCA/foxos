@@ -1,7 +1,6 @@
 #ifndef ATA_DRIVER_H
 #define ATA_DRIVER_H
-#include <system.h>
-#include <paging.h>
+#include <stdint.h>
 #include <vfs.h>
 
 

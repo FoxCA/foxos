@@ -1,8 +1,5 @@
 #ifndef LIST_H
 #define LIST_H
-#include <system.h>
-#include <stdio.h>
-#include <kheap.h>
 
 typedef struct listnode {
 	struct listnode * prev;
@@ -15,6 +12,8 @@ typedef struct list{
 	listnode_t * tail;
 	uint32_t size;
 }list_t;
+
+#include <tree.h>
 
 #define foreach(t, list) for(listnode_t * t = list->head; t != NULL; t = t->next)
 

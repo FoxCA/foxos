@@ -1,6 +1,6 @@
 #ifndef PCI_H
 #define PCI_H
-#include <system.h>
+#include <stdint.h>
 
 // I love bit fields So much better than ugly big twidling :)
 typedef union pci_dev {

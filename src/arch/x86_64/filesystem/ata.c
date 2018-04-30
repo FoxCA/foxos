@@ -1,9 +1,4 @@
-#include <ata.h>
-#include <pci.h>
-#include <pic.h>
-#include <system.h>
-#include <kheap.h>
-#include <string.h>
+#include <kernel.h>
 
 pci_dev_t ata_device;
 

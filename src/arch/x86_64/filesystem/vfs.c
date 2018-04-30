@@ -1,11 +1,6 @@
-#include <vfs.h>
-#include <ext2.h>
-#include <kheap.h>
-#include <string.h>
-#include <errno.h>
-#include <vga.h>
+#include <kernel.h>
 
-gtree_t * vfs_tree;
+tree_t * vfs_tree;
 vfs_node_t * vfs_root;
 
 uint32_t vfs_get_file_size(vfs_node_t * node) {
@@ -49,7 +44,7 @@ void vfs_db_listdir(char * name) {
  *       hdd
  *
  * */
-void print_vfstree_recur(gtreenode_t * node, int parent_offset) {
+void print_vfstree_recur(treenode_t * node, int parent_offset) {
     if (!node) return;
     //db_print();
     char * tmp = kmalloc(512);
@@ -280,7 +275,7 @@ char *expand_path(char *input) {
     return ret;
 }
 
-vfs_node_t * get_mountpoint_recur(char ** path, gtreenode_t * subroot) {
+vfs_node_t * get_mountpoint_recur(char ** path, treenode_t * subroot) {
     int found = 0;
     char * curr_token = strsep(path, "/");
     // Basecase, not getting any more tokens, stop and return the last one
@@ -290,7 +285,7 @@ vfs_node_t * get_mountpoint_recur(char ** path, gtreenode_t * subroot) {
     }
     // Find if subroot's children contain any that matches the current token
     foreach(child, subroot->children) {
-        gtreenode_t * tchild = (gtreenode_t*)child->val;
+        treenode_t * tchild = (treenode_t*)child->val;
         struct vfs_entry * ent = (struct vfs_entry*)(tchild->value);
         if(strcmp(ent->name, curr_token) == 0) {
             found = 1;
@@ -384,7 +379,7 @@ void vfs_mount_dev(char * mountpoint, vfs_node_t * node) {
  * Helper function for vfs_mount
  * This is simply inserting a node
  * */
-void vfs_mount_recur(char * path, gtreenode_t * subroot, vfs_node_t * fs_obj) {
+void vfs_mount_recur(char * path, treenode_t * subroot, vfs_node_t * fs_obj) {
     int found = 0;
     char * curr_token = strsep(&path, "/");
 
@@ -401,7 +396,7 @@ void vfs_mount_recur(char * path, gtreenode_t * subroot, vfs_node_t * fs_obj) {
     }
 
     foreach(child, subroot->children) {
-        gtreenode_t * tchild = (gtreenode_t*)child->val;
+        treenode_t * tchild = (treenode_t*)child->val;
         struct vfs_entry * ent = (struct vfs_entry*)(tchild->value);
         if(strcmp(ent->name, curr_token) == 0) {
             found = 1;

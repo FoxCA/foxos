@@ -1,6 +1,4 @@
-#include <ext2.h>
-#include <stdio.h>
-#include <string.h>
+#include <kernel.h>
 
 uint32_t ext2_file_size(vfs_node_t * node) {
     ext2_fs_t * ext2fs = node->device;

@@ -1,6 +1,4 @@
-#include <pci.h>
-#include <string.h>
-#include <stdio.h>
+#include <kernel.h>
 
 uint32_t pci_size_map[100];
 pci_dev_t dev_zero= {0};
