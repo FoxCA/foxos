@@ -25,7 +25,8 @@ void vgatest_cmd(){
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
     char * names[16] = {
-    	"black","blue","green","cyan","red","magenta","brown","white","gray","lightblue","lightgreen","lightcyan","lightred","lightmagenta","yellow","brightwhite"
+    	"black", "blue", "green", "cyan", "red", "magenta", "brown", "lightgray",
+    	"gray", "lightblue", "lightgreen", "turquoise", "lightred", "pink", "yellow", "white"
 	};
 	int i,j;
     for (i = 0; i < 16; i++)
@@ -38,7 +39,7 @@ void vgatest_cmd(){
         settextcolor(white, black);
         putc(' ');
       }
-      settextcolor((unsigned char)i,(unsigned char)15-i);
+      settextcolor((unsigned char)(i == 0 ? 15 : 0), (unsigned char)j);
       puts(names[i]);
       putc('\n');
     }
@@ -57,9 +58,13 @@ void clear_cmd(){
 }
 
 void color_cmd(list_t * argv, int argc){
-	int fg,bg,fgdetected=false,bgdetected=false;
+	int fg;
+	int bg;
+	bool fgdetected = false;
+	bool bgdetected = false;
 	char * names[16] = {
-		"black","blue","green","cyan","red","magenta","brown","white","gray","lightblue","lightgreen","lightcyan","lightred","lightmagenta","yellow","brightwhite"
+		"black", "blue", "green", "cyan", "red", "magenta", "brown", "lightgray",
+    	"gray", "lightblue", "lightgreen", "turquoise", "lightred", "pink", "yellow", "white"
 	};
 	// printf((char *)list_get_node_by_index(argv,0)->val);
 	// printf((char *)list_get_node_by_index(argv,1)->val);
@@ -120,6 +125,13 @@ void listdirs_cmd(){
 
 void mkdir_cmd(){
 	vfs_mkdir("hey",10);
+}
+
+void minesweeper_cmd()
+{
+	clear_cmd();
+	settextcolor(b, 0); // turquoise text, black background
+	printf("Minesweeper v0.1");
 }
 
 void setup_commands(){
@@ -200,5 +212,11 @@ void setup_commands(){
 		"colors",
 		0,
 		{vgatest_cmd}
+	});
+	
+	kcll_register_command((command){
+		"minesweeper",
+		0,
+		{minesweeper_cmd}
 	});
 }

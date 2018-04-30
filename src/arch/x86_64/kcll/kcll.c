@@ -160,7 +160,7 @@ void processInput(char *input)
     {
       if(list_size(argv) < commands[i].arguments)
       {
-        printf("Not enough arguments given. %i expected, got %i\n",commands[i].arguments, list_size(argv));    
+        printf("Not enough arguments given. %i expected, got %i\n",commands[i].arguments, list_size(argv) - 1);    
       }
       else
       {
