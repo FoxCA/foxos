@@ -23,6 +23,11 @@ else: longer names
 //1:VESA
 #define GRAPHICS 0
 
+//enable serial debugging (qemu console)
+#define SERIAL 1
 
+
+#define ATA_DEBUG 0
+#define PROCESS_DEBUG 0
 
 #endif

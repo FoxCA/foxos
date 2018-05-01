@@ -97,40 +97,19 @@ void time_cmd(){
   printf("time since boot (seconds):%f\n\n",timer_get_time_since_boot());
 }
 
-void test_abort_cmd(){
-    PANIC("test");
-}
-
-void malloc_cmd(){
-    char * a = malloc(10*sizeof(char));
-
-   	strcpy(a,"hello");
-
-    char * b = malloc(10*sizeof(char));
-
-    strcpy(b,"hey");
-
-
-    printf("%s\n\n",a);   
-    printf("%s\n\n",b);   
-
-	db_print();
-    printf("%p\n\n",a);
-    printf("%p\n\n",b);
-}
-
-void listdirs_cmd(){
+void fs_test_cmd(){
 	print_vfstree();
+	vfs_mkdir("hey",10);
+	vfs_mkdir("hey",10);
+	print_vfstree();
+	vfs_db_listdir("hey");
 }
 
-void mkdir_cmd(){
-	vfs_mkdir("hey",10);
-}
 
 void minesweeper_cmd()
 {
 	clear_cmd();
-	settextcolor(cyan, 0); // turquoise text, black background
+	settextcolor(cyan, black); // turquoise text, black background
 	printf("Minesweeper v0.1");
 }
 
@@ -178,27 +157,9 @@ void setup_commands(){
 	});
 
 	kcll_register_command((command){
-		"testabort",
+		"fs",
 		0,
-		{test_abort_cmd}
-	});
-
-	kcll_register_command((command){
-		"malloc",
-		0,
-		{malloc_cmd}
-	});
-
-	kcll_register_command((command){
-		"listdirs",
-		0,
-		{listdirs_cmd}
-	});
-
-	kcll_register_command((command){
-		"mkdir",
-		0,
-		{mkdir_cmd}
+		{fs_test_cmd}
 	});
 
 

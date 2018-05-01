@@ -256,28 +256,28 @@ void ata_device_init(ata_dev_t * dev, int primary) {
 }
 
 void print_ata_dev(ata_dev_t * dev){
-    printf("data: %i\n",dev->data);
-    printf("error: %i\n",dev->error);
-    printf("sector_count: %i\n",dev->sector_count);
-    printf("sector_num: %i\n",dev->sector_num);
-    printf("cylinder_low: %i\n",dev->cylinder_low);
-    printf("cylinder_high: %i\n",dev->cylinder_high);
-    printf("drive: %i\n",dev->drive);
-    printf("command: %i\n",dev->command);
-    printf("control: %i\n",dev->control);
-    printf("slave: %i\n",dev->slave);
-    printf("bar4: %i\n",dev->bar4);
-    printf("BMR_COMMAND: %i\n",dev->BMR_COMMAND);
-    printf("BMR_prdt: %i\n",dev->BMR_prdt);
-    printf("BMR_STATUS: %i\n",dev->BMR_STATUS);
-    printf("buffer_phys: %i\n",dev->prdt->buffer_phys);
-    printf("transfer_size: %i\n",dev->prdt->transfer_size);
-    printf("mark_end: %i\n",dev->prdt->mark_end);
-    printf("prdt_phys: %i\n",dev->prdt_phys);
-    printf("mem_buffer: %i\n",dev->mem_buffer);
-    printf("prdt_phys: %i\n",dev->prdt_phys);
-    printf("mem_buffer_phys: %i\n",dev->mem_buffer_phys);
-    printf("mountpoint: %s\n",dev->mountpoint);
+    printf_qemu("data: %i\n",dev->data);
+    printf_qemu("error: %i\n",dev->error);
+    printf_qemu("sector_count: %i\n",dev->sector_count);
+    printf_qemu("sector_num: %i\n",dev->sector_num);
+    printf_qemu("cylinder_low: %i\n",dev->cylinder_low);
+    printf_qemu("cylinder_high: %i\n",dev->cylinder_high);
+    printf_qemu("drive: %i\n",dev->drive);
+    printf_qemu("command: %i\n",dev->command);
+    printf_qemu("control: %i\n",dev->control);
+    printf_qemu("slave: %i\n",dev->slave);
+    printf_qemu("bar4: %i\n",dev->bar4);
+    printf_qemu("BMR_COMMAND: %i\n",dev->BMR_COMMAND);
+    printf_qemu("BMR_prdt: %i\n",dev->BMR_prdt);
+    printf_qemu("BMR_STATUS: %i\n",dev->BMR_STATUS);
+    printf_qemu("buffer_phys: %i\n",dev->prdt->buffer_phys);
+    printf_qemu("transfer_size: %i\n",dev->prdt->transfer_size);
+    printf_qemu("mark_end: %i\n",dev->prdt->mark_end);
+    printf_qemu("prdt_phys: %i\n",dev->prdt_phys);
+    printf_qemu("mem_buffer: %i\n",dev->mem_buffer);
+    printf_qemu("prdt_phys: %i\n",dev->prdt_phys);
+    printf_qemu("mem_buffer_phys: %i\n",dev->mem_buffer_phys);
+    printf_qemu("mountpoint: %s\n",dev->mountpoint);
 }
 
 /*
@@ -300,7 +300,10 @@ void ata_device_detect(ata_dev_t * dev, int primary) {
     outportb(dev->lba_high, 0);
     // Send identify command to command port
 
+    #if ATA_DEBUG
     print_ata_dev(dev);
+    #endif
+
     outportb(dev->command, COMMAND_IDENTIFY);
     // for(;;);
 
@@ -347,7 +350,7 @@ void ata_init() {
     ata_device = pci_get_device(ATA_VENDOR_ID, ATA_DEVICE_ID, -1);
 
     // Second, install irq handler
-    irq_install_handler(32 + 14, ata_handler);
+    irq_install_handler(14, ata_handler);
 
     // Third, detect four ata devices
     ata_device_detect(&primary_master, 1);

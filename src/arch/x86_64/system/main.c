@@ -2,7 +2,7 @@
 
 void main()
 {   
-    #if GRAPHICS == 1 && SERIAL
+    #if SERIAL
         //qemu serial
         outportb(0x3f8 + 1, 0x00);
         outportb(0x3f8 + 3, 0x80);
@@ -14,7 +14,7 @@ void main()
     #endif
 
     vga_init_video();
-    autoscroll();
+    linescroll();
 
     settextcolor(green,black);
     printf("vga initialized...\n");
@@ -113,8 +113,7 @@ void main()
     asm volatile("mov %%esp, %0" : "=r"(esp));
     tss_set_stack(0x10, esp);
     settextcolor(green,black);
-
-
+    
     printf("Fox Kernel ");
     printf(FOX_VERSION);
     printf(" loaded.\n");

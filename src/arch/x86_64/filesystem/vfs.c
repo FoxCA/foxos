@@ -1,5 +1,6 @@
 #include <kernel.h>
 
+
 tree_t * vfs_tree;
 vfs_node_t * vfs_root;
 
@@ -56,10 +57,12 @@ void print_vfstree_recur(treenode_t * node, int parent_offset) {
     }
     char * curr = tmp + strlen(tmp);
     struct vfs_entry * fnode = (struct vfs_entry *)node->value;
+
+
     if (fnode->file) {
-        printf(curr, "%s(0x%x, %s)", fnode->name, (uint32_t)fnode->file, fnode->file->name);
+        printf("%s %s(0x%x, %s)", curr, fnode->name, (uint32_t)fnode->file, fnode->file->name);
     } else {
-        printf(curr, "%s(empty)", fnode->name);
+        printf("%s %s(empty)", curr, fnode->name);
     }
     printf("%s\n", tmp);
     len = strlen(fnode->name);

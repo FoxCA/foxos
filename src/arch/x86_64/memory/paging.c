@@ -358,5 +358,16 @@ void page_fault_handler(regs * reg) {
     if(reserved) printf("Overwrote reserved bits ");
     if(inst_fetch) printf("Instruction fetch ");
     printf("]\n");
+
+    #if SERIAL
+    printf_qemu("Possible causes: [ ");
+    if(!present) printf_qemu("Page not present ");
+    if(rw) printf_qemu("Page is read only ");
+    if(user) printf_qemu("Page is read only ");
+    if(reserved) printf_qemu("Overwrote reserved bits ");
+    if(inst_fetch) printf_qemu("Instruction fetch ");
+    printf_qemu("]\n");
+    #endif    
+
     settextcolorf(c);
 }

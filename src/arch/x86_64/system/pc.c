@@ -44,3 +44,4 @@ uint32_t inportl(uint16_t _port) {
 void outportl(uint16_t _port, uint32_t _data) {
     asm volatile ("outl %%eax, %%dx" : : "dN" (_port), "a" (_data));
 }
+

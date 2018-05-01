@@ -10,4 +10,8 @@ void outports(uint16_t _port, uint16_t _data);
 uint32_t inportl(uint16_t _port);
 void outportl(uint16_t _port, uint32_t _data);
 
+
+#define outportw(x,y) outports(x,y)
+#define inportw(x) inports(x)
+
 #endif

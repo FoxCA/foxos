@@ -52,7 +52,6 @@ void context_switch(regs * p_regs, context_t * n_regs) {
  * This function is registered to the timer wakeup list, so it will be wakeup every 2/18 seconds
  * */
 void schedule() {
-    printf_qemu("Process Scheduler running\n");
     pcb_t * next;
     if(!list_size(process_list)){
         return;
@@ -86,7 +85,6 @@ void schedule() {
     if(current_process == NULL){
         PANIC("no process left, did you exit all user process ??? Never exit the userspace init process!!!!");
     }
-    printf_qemu("Scheduler chose %s to run at 0x%i\n", current_process->filename, current_process->regs.eip);
     context_switch(&saved_context, &next->regs);
 }
 
@@ -145,7 +143,9 @@ void create_process_from_routine(void * routine, char * name) {
     if(!current_process)
         current_process = p1;
     p1->self = list_insert_front(process_list, p1);
+    #if PROCESS_DEBUG
     printf("%s created\n\n", name);
+    #endif
 }
 
 /*
