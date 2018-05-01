@@ -417,6 +417,10 @@ void processInput(char *input)
     printf("? - Display this help page.\n");
     return;
   }
+  else if (starts_with(input, "tvga")) {
+    #include <kcll_builtin_vgatest.h>
+    kcll_builtin_vgatest();
+  }
   else if (starts_with(input, "shutdown"))
   {
     shutdown();
