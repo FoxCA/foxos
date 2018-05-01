@@ -14,7 +14,7 @@ grub_timeout := 10
 CFLAGS= -m32 -Wall -O -fno-pie -fstrength-reduce -fomit-frame-pointer	\
         -finline-functions -nostdinc -fno-builtin -ffreestanding		\
         -fno-stack-protector -c -Wno-unused-variable -Wno-maybe-uninitialized -Wno-error=varargs \
-		-Wno-error=unused-function
+		-Wno-error=unused-function -std=gnu11
 # Wunused-variable will be ignored!
 
 CFLAGS += $(foreach dir, $(includedirs), -I./$(dir))

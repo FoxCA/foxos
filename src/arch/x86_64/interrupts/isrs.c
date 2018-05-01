@@ -126,7 +126,8 @@ void fault_handler(struct regs *r)
         settextcolor(red,black);
         puts(exception_messages[r->int_no]);
         puts(" Exception. System Halted!\n");
-        for(int i = 0;i<500000000;i++);
+        int i;
+        for(i = 0;i<50000000000;i++);
         reboot();
         for (;;);
     }

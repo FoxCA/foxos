@@ -28,7 +28,6 @@ else: longer names
 
 
 #define ATA_DEBUG 0
-#define PROCESS_DEBUG 0
-#define KHEAP_DEBUG 1
+#define PROCESS_DEBUG 1
 
 #endif

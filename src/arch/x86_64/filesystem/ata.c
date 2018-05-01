@@ -333,7 +333,8 @@ void ata_device_detect(ata_dev_t * dev, int primary) {
     }
 
     // Read 256 words(don't care the return value)
-    for(int i = 0; i < 256; i++) inports(dev->data);
+    int i;
+    for(i = 0; i < 256; i++) inports(dev->data);
 
     uint32_t pci_command_reg = pci_read(ata_device, PCI_COMMAND);
     if(!(pci_command_reg & (1 << 2))) {
