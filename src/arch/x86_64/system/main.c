@@ -125,13 +125,17 @@ void main()
     autoscroll();
 
     settextcolor(white,black);
-    getc(); 
-    cls();
+    // getc(); 
+    // cls();
 
     settextcolor(white,black);
     
     #if GRAPHICS == 0
-        create_process_from_routine(kcll_start,"user process");
+        #if MULTITASKING == 1
+            create_process_from_routine(kcll_start,"user process");
+        #else
+            kcll_start();
+        
     #endif
     #if GRAPHICS == 1
         vesa_init();

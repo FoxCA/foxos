@@ -23,6 +23,9 @@ else: longer names
 //1:VESA
 #define GRAPHICS 0
 
+//multitasking
+#define MULTITASKING 0
+
 //enable serial debugging (qemu console)
 #define SERIAL 1
 
