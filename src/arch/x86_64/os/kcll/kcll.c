@@ -472,6 +472,10 @@ void processInput(char *input)
   }else if(starts_with(input,"time")){
     printf("%i\n",timer_get_time_since_boot());
   }
+  else if (starts_with(input, "numlock")
+  {
+    shell_kb_handler(0x45);
+  }
   else
   {
     printf("Unknown command.\n");
