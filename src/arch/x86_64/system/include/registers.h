@@ -10,4 +10,6 @@ typedef struct regs
     unsigned int eip, cs, eflags, useresp, ss;
 }regs;
 
+void print_regs(regs * r);
+
 #endif
