@@ -70,6 +70,7 @@
 #include <ext2.h>
 #include <pci.h>
 #include <vfs.h>
+#include <fs.h>
 
 //executable
 #include <elf.h>

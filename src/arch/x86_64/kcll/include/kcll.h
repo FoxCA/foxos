@@ -28,6 +28,7 @@ typedef struct command{
   char * prefix;
   int arguments;
   callback callback;
+  int giveargs;
 }command;
 
 unsigned char shell_foreground_colour;

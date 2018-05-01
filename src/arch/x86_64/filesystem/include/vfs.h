@@ -104,6 +104,7 @@ typedef struct vfs_entry {
     vfs_node_t * file;
 }vfs_entry_t;
 
+extern vfs_node_t * vfs_root;
 
 uint32_t vfs_get_file_size(vfs_node_t * node);
 

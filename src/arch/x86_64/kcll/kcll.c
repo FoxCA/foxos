@@ -166,7 +166,7 @@ void processInput(char *input)
       {
         list_remove_by_index(argv, 0);
         
-        if(commands[i].arguments == 0)
+        if(commands[i].arguments == 0 && !commands[i].giveargs)
         {
           commands[i].callback.noargv();
         }

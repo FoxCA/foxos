@@ -259,10 +259,23 @@ void shell_kb_handler(unsigned char scancode)
       kb_led_scroll = !kb_led_scroll;
       change_scroll_led(kb_led_scroll);
       return;
+    case 77://right
+      printf("right!");
+      break;
+    case 72://up
+      printf("up!");  
+      break;  
+    case 75://left
+      printf("left!");
+      break;  
+    case 80://down
+      printf("down!");
+      break;
+
     default:
       break;
   }
-  
+
   unsigned char scan_keymap_index = scancode & 0b01111111; // The keymap scan index (with the potential released flag bit removed).
   
   if ((scancode & 0b10000000) > 0) // Is the released flag bit set? 0bXyyyyyyy X = flag, y = scancode

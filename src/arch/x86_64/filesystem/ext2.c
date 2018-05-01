@@ -106,7 +106,10 @@ void ext2_unlink(vfs_node_t * parent, char * name) {
  * List directories under a certain directory
  * */
 char ** ext2_listdir(vfs_node_t * parent) {
-    ext2_fs_t * ext2fs = parent->device;
+
+
+
+    ext2_fs_t * ext2fs = (ext2_fs_t *)parent->device;
     inode_t * p_inode = kmalloc(sizeof(inode_t));
     read_inode_metadata(ext2fs, p_inode, parent->inode_num);
     uint32_t curr_offset = 0;
@@ -115,6 +118,8 @@ char ** ext2_listdir(vfs_node_t * parent) {
     int size = 0, cap = 10;
     char ** ret = kmalloc(sizeof(char*) * cap);
     char * block_buf = read_inode_block(ext2fs, p_inode, block_offset);
+    
+
     while(curr_offset < p_inode->size) {
         if(in_block_offset >= ext2fs->block_size) {
             block_offset++;
@@ -140,6 +145,7 @@ char ** ext2_listdir(vfs_node_t * parent) {
         in_block_offset += curr_dir->size;
         curr_offset += curr_dir->size;
     }
+
     ret[size] = NULL;
     return ret;
 }
@@ -411,6 +417,7 @@ void ext2_close() {
  * Given a inode number, find the inode on disk and read it
  * */
 void read_inode_metadata(ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_idx) {
+    
     // Which group the inode lives in
     uint32_t group = inode_idx / ext2fs->inodes_per_group;
     // The block that points to a table of all inodes

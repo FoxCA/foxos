@@ -273,7 +273,7 @@ when .. is seen, pop it and pop one more time
 */
 char *expand_path(char *input) {
     // First, push all of them onto a stack
-    list_t * input_list = str_split(input, "/", NULL);
+    list_t * input_list = str_split_path(input, "/", NULL);
     char * ret = list2str(input_list, "/");
     return ret;
 }
@@ -281,7 +281,6 @@ char *expand_path(char *input) {
 /*
  * Helper function for file_open
  * Given a filename, return the vfs_node_t of the path on which it's mounted
- * For example, in our case /home/szhou42 is mounted on the vfs_node_t with path "/" (ext2 is mounted for root dir)
  *
  * */
 vfs_node_t * get_mountpoint_recur(char ** path, treenode_t * subroot) {
@@ -342,12 +341,13 @@ vfs_node_t *file_open(char * file_name, uint32_t flags) {
      When it gets to  directory containing the file, simply invoke the callback open provided by the physical filesystem
     */
     char * curr_token = NULL;
-    char * filename = strdup(file_name);
+    char * filename = strdup(file_name);    
     char * free_filename = filename;
     char * save = strdup(filename);
     char * original_filename = filename;
     char * new_start = NULL;
     vfs_node_t * nextnode = NULL;
+    
     vfs_node_t * startpoint = get_mountpoint(&filename);
     if(!startpoint) return NULL;
     if(filename)

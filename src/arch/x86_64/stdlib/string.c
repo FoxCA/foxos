@@ -123,6 +123,19 @@ list_t * str_split(char * str, char * delim, unsigned int * numtokens) {
     char *s = strdup(str);
     char *token, *rest = s;
     while ((token = strsep(&rest, delim)) != NULL) {
+        list_push(ret_list, strdup(token));
+        if(numtokens) (*numtokens)++;
+    }
+    free(s);
+    return ret_list;
+}
+
+
+list_t * str_split_path(char * str, char * delim, unsigned int * numtokens) {
+    list_t * ret_list = list_create();
+    char *s = strdup(str);
+    char *token, *rest = s;
+    while ((token = strsep(&rest, delim)) != NULL) {
         if(!strcmp(token, ".")) continue;
         if(!strcmp(token, "..")) {
             if(list_size(ret_list) > 0) list_pop(ret_list);
@@ -215,7 +228,92 @@ duplicates a string
 */
 char * strdup(char * src) {
     int len = strlen(src) + 1;
-    char * dst = kmalloc(len);
-    memcpy(dst, src, len);
+    char * dst = kmalloc(len);        
+    memcpy(dst, src, len);    
     return dst;
+}
+
+
+char * strtok(char* s, char* delm)
+{
+    static int currIndex = 0;
+    if(!s || !delm || s[currIndex] == '\0')
+    return NULL;
+    char *W = (char *)malloc(sizeof(char)*100);
+    int i = currIndex, k = 0, j = 0;
+    //char *ptr;
+    //static char *Iterator = s;
+    //ptr = s;
+
+    /*if (s == NULL){
+    s = Iterator;
+    }*/
+    while (s[i] != '\0'){
+        j = 0;
+        while (delm[j] != '\0'){
+            if (s[i] != delm[j])
+                W[k] = s[i];
+            else goto It;
+            j++;
+        }
+        //ptr++;
+        i++;
+        k++;
+    }
+It:
+    W[i] = 0;
+    currIndex = i+1;
+    //Iterator = ++ptr;
+    return W;
+}
+
+
+char * strtok_r(char *s, char *delim, char **lasts)
+{
+  char *spanp;
+  int c, sc;
+  char *tok;
+
+  /* s may be NULL */
+  /*netsnmp_assert(delim != NULL);*/
+  /*netsnmp_assert(lasts != NULL);*/
+
+  if (s == NULL && (s = *lasts) == NULL)
+    return (NULL);
+
+  /*
+  * Skip (span) leading delimiters (s += strspn(s, delim), sort of).
+  */
+  cont:
+  c = *s++;
+  for (spanp = delim; (sc = *spanp++) != 0;) {
+    if (c == sc)
+      goto cont;
+  }
+
+  if (c == 0) {           /* no non-delimiter characters */
+    *lasts = NULL;
+    return (NULL);
+  }
+  tok = s - 1;
+
+  /*
+  * Scan token (scan for delimiters: s += strcspn(s, delim), sort of).
+  * Note that delim must have one NUL; we stop if we see that, too.
+  */
+  for (;;) {
+    c = *s++;
+    spanp = delim;
+    do {
+      if ((sc = *spanp++) == c) {
+        if (c == 0)
+          s = NULL;
+        else
+          s[-1] = 0;
+        *lasts = s;
+        return (tok);
+      }
+    } while (sc != 0);
+  }
+  /* NOTREACHED */
 }

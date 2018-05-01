@@ -98,13 +98,37 @@ void time_cmd(){
 }
 
 void fs_test_cmd(){
+	ls("");
 	print_vfstree();
-	vfs_mkdir("hey",10);
-	vfs_mkdir("hey",10);
-	print_vfstree();
-	vfs_db_listdir("hey");
+	// vfs_mkdir("hey",10);
+	// vfs_mkdir("hey",10);
+	// print_vfstree();
+	// vfs_db_listdir("hey");
 }
 
+void ls_cmd(list_t * argv, int argc){
+	if(argc == 0){
+		list_t * dirs = ls("");
+		foreach(i, dirs){
+			printf("%s ",i->val);
+		}
+		free(dirs);
+	}else{		
+		list_t * dirs = ls((char *)list_get_node_by_index(argv,0)->val);
+		foreach(i, dirs){
+			printf("%s ",i->val);
+		}
+		free(dirs);
+	}
+	printf("\n");
+}
+
+void cat_cmd(list_t * argv, int argc){
+	char * dirs = cat((char *)list_get_node_by_index(argv,0)->val);
+	printf(dirs);
+	printf("\n");
+	free(dirs);
+}
 
 void minesweeper_cmd()
 {
@@ -162,6 +186,19 @@ void setup_commands(){
 		{fs_test_cmd}
 	});
 
+
+	kcll_register_command((command){
+		"ls",
+		0,
+		{ls_cmd},
+		1
+	});
+
+	kcll_register_command((command){
+		"cat",
+		1,
+		{cat_cmd},
+	});
 
 	kcll_register_command((command){
 		"color",

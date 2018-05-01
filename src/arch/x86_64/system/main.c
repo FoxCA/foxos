@@ -90,6 +90,7 @@ void main()
     printf("ata initialized...\n");
     settextcolor(yellow,black);
     ext2_init("/dev/hda", "/");
+    fs_init();
     settextcolor(green,black);
     printf("filesystem initialized...\n");
     #endif
@@ -113,7 +114,7 @@ void main()
     asm volatile("mov %%esp, %0" : "=r"(esp));
     tss_set_stack(0x10, esp);
     settextcolor(green,black);
-    
+
     printf("Fox Kernel ");
     printf(FOX_VERSION);
     printf(" loaded.\n");

@@ -24,6 +24,7 @@ int strncmp(char * s1, char * s2, size_t n );
 char * strdup(char * src);
 char * strsep(char ** stringp, char * delim);
 list_t * str_split(char * str, char * delim, unsigned int * numtokens);
+list_t * str_split_path(char * str, char * delim, unsigned int * numtokens);
 char * list2str(list_t * list, char * delim);
 char * strstr(char *in, char *str);
 
@@ -32,6 +33,7 @@ char * strstr(char *in, char *str);
 void * memcpy(void *dest, void *src, size_t count);
 void * memset(void *dest, int val, size_t count);
 unsigned short * memsetw(unsigned short *dest, unsigned short val, size_t count);
-
+char * strtok(char * s, char * delim);
+char * strtok_r(char *s, char *delim, char **lasts);
 
 #endif

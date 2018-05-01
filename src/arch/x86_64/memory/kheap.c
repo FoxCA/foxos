@@ -1,10 +1,8 @@
 #include <kernel.h>
 
-// Global Var
-
 struct Block * head = NULL;       // First memory block
-struct Block * tail = NULL;	  // Last memory block
-struct Block * freelist = NULL;	  // All the memory blocks that are freed
+struct Block * tail = NULL;   // Last memory block
+struct Block * freelist = NULL;   // All the memory blocks that are freed
 
 
 void * heap_start;    // Where heap starts (must be page-aligned)
@@ -96,7 +94,7 @@ uint32_t kmalloc_int(uint32_t sz, int align, uint32_t *phys)
    */
 void * kmalloc_a(uint32_t sz)
 {
-    return (void *)kmalloc_int(sz, 1, 0);
+    return kmalloc_int(sz, 1, 0);
 }
 
 /*
@@ -169,7 +167,6 @@ uint32_t getRealSize(uint32_t size) {
    */
 void db_print() {
     if(!head) {printf("your heap is empty now\n");return;}
-    //printf("HEAP:\n");
     uint32_t total = 0;
     uint32_t total_overhead = 0;
     struct Block * curr = head;
@@ -275,14 +272,21 @@ struct Block * bestfit(uint32_t size) {
     if(!freelist) return NULL;
     struct Block * curr = freelist;
     struct Block * currBest = NULL;
+    int counter = 0;
     while(curr) {
         if(doesItFit(curr, size)) {
             if(currBest == NULL || curr->size < currBest->size)
                 currBest = curr;
         }
-        curr = curr ->next;
+        curr = curr->next;
+        if(curr->next == curr){
+            counter++;
+            if(counter == 100){
+                return NULL;
+            }
+        }
     }
-    return currBest;;
+    return currBest;
 }
 
 /*
