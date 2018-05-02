@@ -40,7 +40,7 @@ void register_wakeup_call(wakeup_callback func, double sec) {
     w->func = func;
     w->sec = sec;
     w->jiffies = jiffy;
-    list_insert_front(wakeup_list, w);
+    list_push(wakeup_list, w);
 }
 
 

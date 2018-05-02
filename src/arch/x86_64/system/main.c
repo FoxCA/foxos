@@ -135,7 +135,7 @@ void main()
             create_process_from_routine(kcll_start,"user process");
         #else
             kcll_start();
-        
+        #endif
     #endif
     #if GRAPHICS == 1
         vesa_init();

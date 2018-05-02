@@ -53,7 +53,8 @@ int kcll_start(void)
   while (main_process.loop)
   {
     settextcolor(shell_foreground_colour, shell_background_colour);
-    printf("> ");
+    printf(getcd());
+    printf("$");
     getInput(input_p, 79);
   
     command_history[command_history_pnt%command_history_size] = input_p;

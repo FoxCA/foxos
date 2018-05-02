@@ -108,7 +108,7 @@ void fs_test_cmd(){
 
 void ls_cmd(list_t * argv, int argc){
 	if(argc == 0){
-		list_t * dirs = ls("");
+		list_t * dirs = ls(".");
 		foreach(i, dirs){
 			printf("%s ",i->val);
 		}
@@ -130,6 +130,18 @@ void cat_cmd(list_t * argv, int argc){
 	free(dirs);
 }
 
+void cd_cmd(list_t * argv, int argc){
+	cd((char *)list_get_node_by_index(argv,0)->val);
+}
+
+void pushd_cmd(list_t * argv, int argc){
+	pushd((char *)list_get_node_by_index(argv,0)->val);
+}
+
+void popd_cmd(){
+	popd();
+}
+
 void minesweeper_cmd()
 {
 	clear_cmd();
@@ -138,47 +150,13 @@ void minesweeper_cmd()
 }
 
 void setup_commands(){
-	kcll_register_command((command){
-		"help",
-		0,
-		{help_cmd}
-	});
-
-	kcll_register_command((command){
-		"?",
-		0,
-		{help_cmd}
-	});
-
-	kcll_register_command((command){
-		"shutdown",
-		0,
-		{shutdown}
-	});
-
-	kcll_register_command((command){
-		"reboot",
-		0,
-		{reboot}
-	});
-
-	kcll_register_command((command){
-		"fox",
-		0,
-		{fox_cmd}
-	});
-
-	kcll_register_command((command){
-		"clear",
-		0,
-		{clear_cmd}
-	});
-
-	kcll_register_command((command){
-		"time",
-		0,
-		{time_cmd}
-	});
+	kcll_register_command((command){"help",0,{help_cmd}});
+	kcll_register_command((command){"?",0,{help_cmd}});
+	kcll_register_command((command){"shutdown",0,{shutdown}});
+	kcll_register_command((command){"reboot",0,{reboot}});
+	kcll_register_command((command){"fox",0,{fox_cmd}});
+	kcll_register_command((command){"clear",0,{clear_cmd}});
+	kcll_register_command((command){"time",0,{time_cmd}});
 
 	kcll_register_command((command){
 		"fs",
@@ -186,31 +164,13 @@ void setup_commands(){
 		{fs_test_cmd}
 	});
 
-
-	kcll_register_command((command){
-		"ls",
-		0,
-		{ls_cmd},
-		1
-	});
-
-	kcll_register_command((command){
-		"cat",
-		1,
-		{cat_cmd},
-	});
-
-	kcll_register_command((command){
-		"color",
-		2,
-		{color_cmd}
-	});
-
-	kcll_register_command((command){
-		"colors",
-		0,
-		{vgatest_cmd}
-	});
+	kcll_register_command((command){"ls",0,{ls_cmd},1});
+	kcll_register_command((command){"cat",1,{cat_cmd},});
+	kcll_register_command((command){"cd",1,{cd_cmd},});
+	kcll_register_command((command){"pushd",1,{pushd_cmd},});
+	kcll_register_command((command){"popd",0,{popd_cmd},});
+	kcll_register_command((command){"color",2,{color_cmd}});
+	kcll_register_command((command){"colors",0,{vgatest_cmd}});
 	
 	kcll_register_command((command){
 		"minesweeper",

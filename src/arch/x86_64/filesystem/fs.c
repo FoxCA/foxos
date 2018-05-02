@@ -4,8 +4,20 @@ char * current_directory;
 list_t * dirstack;
 
 
+int path_exists(char * name){
+    if(!file_open(name, 0)) {
+    	return 0;
+    }
+    return 1;
+}
+
 char * cd(char * directory){
-	current_directory = canonicalize_path(current_directory,directory);
+	char * path = canonicalize_path(current_directory,directory); 
+	if(path_exists(path)){
+		current_directory = path;
+	}else{
+		printf("path not found\n");
+	}
 }
 
 char * getcd(){
@@ -53,18 +65,26 @@ char * cat(char * filename){
 	return (char *)file;
 }
 
-void pushd(char * directory){
-
+void pushd(char * filename){
+	char * directory = canonicalize_path(current_directory,filename);
+	if(path_exists(directory)){
+		list_push(dirstack,directory);
+	}else{
+		printf("path not found\n");
+	}
 }
 
-void popd(char * directory){
-
+void popd(){
+	if(list_size(dirstack) != 0){
+		current_directory = list_pop(dirstack);
+	}else{
+		printf("directory stack empty\n");
+	}
 }
 
 void mkdir(char * directory){
 
 }
-
 
 void fs_init(){
 	current_directory = "/";
@@ -101,7 +121,6 @@ char *canonicalize_path(char *cwd, char *input) {
 		free(path);
 	}
 
-
 	/* Similarly, we need to push the elements from the new path */
 	char *path = malloc((strlen(input) + 1) * sizeof(char));
 	memcpy(path, input, strlen(input) + 1);
@@ -117,17 +136,20 @@ char *canonicalize_path(char *cwd, char *input) {
 	 * (do nothing)
 	 */
 	
+	// foreach(i, out){
+	// 	printf("%s\n",i->val);
+	// }
+
+
 	while (pch != NULL) {
 		if (!strcmp(pch,PATH_UP)) {
 			/*
 			 * Path = ..
 			 * Pop the stack to move up a directory
 			 */
-			listnode_t * n = list_pop(out);
-			if (n) {
-				free(n->val);
-				free(n);
-			}
+			list_remove_back(out);
+
+
 		} else if (!strcmp(pch,PATH_DOT)) {
 			/*
 			 * Path = .
@@ -144,7 +166,11 @@ char *canonicalize_path(char *cwd, char *input) {
 		}
 		pch = strtok_r(NULL, PATH_SEPARATOR_STRING, &save);
 	}
-	free(path);
+	// free(path);
+
+	// foreach(j, out){
+	// 	printf("%s\n",j->val);
+	// }
 
 	/* Calculate the size of the path string */
 	size_t size = 0;
