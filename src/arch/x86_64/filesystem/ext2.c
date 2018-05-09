@@ -575,9 +575,9 @@ void rewrite_superblock(ext2_fs_t * ext2fs) {
  *Allocate block for a inode if the table entry says the block is not already allocated
  * */
 
-int alloc_inode_metadata_block(uint32_t * block_ptr, ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_idx, char * buffer, unsigned int block_overwrite) {
+int alloc_inode_metadata_block(uint32_t * block_ptr, ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_idx, char * buffer, uint32_t block_overwrite) {
     if(!(*block_ptr)) {
-        unsigned int block_no = ext2_alloc_block(ext2fs);
+        uint32_t block_no = ext2_alloc_block(ext2fs);
         if(!block_no) return 0;
         *block_ptr = block_no;
         if(buffer)
@@ -593,9 +593,9 @@ int alloc_inode_metadata_block(uint32_t * block_ptr, ext2_fs_t * ext2fs, inode_t
  * Note that iblock refers to the linear block address of the inode, whereas dblock refers to the block on disk
  * */
 uint32_t get_disk_block_number(ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_block) {
-    unsigned int p = ext2fs->block_size / 4, ret;
+    uint32_t p = ext2fs->block_size / 4, ret;
     int a, b, c, d, e, f, g;
-    unsigned int * tmp = kmalloc(ext2fs->block_size);
+    uint32_t * tmp = kmalloc(ext2fs->block_size);
     // How many blocks are left except for direct blocks ?
     a = inode_block - EXT2_DIRECT_BLOCKS;
     if(a < 0) {
@@ -637,10 +637,10 @@ done:
  * Note that iblock refers to the linear block address of the inode, whereas dblock refers to the block on disk
  * */
 void set_disk_block_number(ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_idx, uint32_t inode_block, uint32_t disk_block) {
-    unsigned int p = ext2fs->block_size / 4;
+    uint32_t p = ext2fs->block_size / 4;
     int a, b, c, d, e, f, g;
     int iblock = inode_block;
-    unsigned int * tmp = kmalloc(ext2fs->block_size);
+    uint32_t * tmp = kmalloc(ext2fs->block_size);
 
     a = iblock - EXT2_DIRECT_BLOCKS;
     if(a <= 0) {
@@ -651,7 +651,7 @@ void set_disk_block_number(ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_i
     if(b <= 0) {
         if(!alloc_inode_metadata_block(&(inode->blocks[EXT2_DIRECT_BLOCKS]), ext2fs, inode, inode_idx, NULL, 0));
         read_disk_block(ext2fs, inode->blocks[EXT2_DIRECT_BLOCKS], (void*)tmp);
-        ((unsigned int*)tmp)[a] = disk_block;
+        ((uint32_t*)tmp)[a] = disk_block;
         write_disk_block(ext2fs, inode->blocks[EXT2_DIRECT_BLOCKS], (void*)tmp);
         tmp[a] = disk_block;
         goto done;
@@ -663,7 +663,7 @@ void set_disk_block_number(ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_i
         if(!alloc_inode_metadata_block(&(inode->blocks[EXT2_DIRECT_BLOCKS + 1]), ext2fs, inode, inode_idx, NULL, 0));
         read_disk_block(ext2fs, inode->blocks[EXT2_DIRECT_BLOCKS + 1], (void*)tmp);
         if(!alloc_inode_metadata_block(&(tmp[c]), ext2fs, inode, inode_idx, (void*)tmp, inode->blocks[EXT2_DIRECT_BLOCKS + 1]));
-        unsigned int temp = tmp[c];
+        uint32_t temp = tmp[c];
         read_disk_block(ext2fs, temp, (void*)tmp);
         tmp[d] = disk_block;
         write_disk_block(ext2fs, temp, (void*)tmp);
@@ -677,7 +677,7 @@ void set_disk_block_number(ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_i
         if(!alloc_inode_metadata_block(&(inode->blocks[EXT2_DIRECT_BLOCKS + 2]), ext2fs, inode, inode_idx, NULL, 0));
         read_disk_block(ext2fs, inode->blocks[EXT2_DIRECT_BLOCKS + 2], (void*)tmp);
         if(!alloc_inode_metadata_block(&(tmp[e]), ext2fs, inode, inode_idx, (void*)tmp, inode->blocks[EXT2_DIRECT_BLOCKS + 2]));
-        unsigned int temp = tmp[e];
+        uint32_t temp = tmp[e];
         read_disk_block(ext2fs, tmp[e], (void*)tmp);
         if(!alloc_inode_metadata_block(&(tmp[f]), ext2fs, inode, inode_idx, (void*)tmp, temp));
         temp = tmp[f];

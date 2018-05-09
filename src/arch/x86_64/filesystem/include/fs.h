@@ -10,7 +10,7 @@
 #define PATH_UP  ".."
 #define PATH_DOT "."
 
-char * cd(char * directory);
+void cd(char * directory);
 char * getcd();
 list_t * ls(char * directory);
 char * cat(char * filename);
@@ -20,5 +20,6 @@ void mkdir(char * directory);
 void fs_init();
 char *canonicalize_path(char *cwd, char *input);
 int path_exists(char * name);
+void exec_elf(char * file);
 
 #endif

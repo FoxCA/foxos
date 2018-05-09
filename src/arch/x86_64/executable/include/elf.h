@@ -116,6 +116,6 @@ typedef struct elf_program_header{
     Elf32_Word      p_align;
 }elf_program_header_t;
 
-void do_elf_load();
+void do_elf_load(char * filename);
 
 #endif

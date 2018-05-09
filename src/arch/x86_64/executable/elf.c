@@ -22,13 +22,13 @@ int valid_elf(elf_header_t * elf_head) {
         return 0;
     return 1;
 }
-void do_elf_load() {
+void do_elf_load(char * filename) {
     uint32_t seg_begin, seg_end;
-    char * filename = current_process->filename;
     current_process->state = TASK_LOADING;
     vfs_node_t * f = file_open(filename, 0);
     if(!f) {
-        PANIC("elf load: file does not exists\n");
+        printf("elf load: file does not exists\n");
+        return;
     }
     uint32_t size = vfs_get_file_size(f);
     // First, kmalloc a memory chunk for the file

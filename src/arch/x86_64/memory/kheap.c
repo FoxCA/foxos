@@ -94,7 +94,7 @@ uint32_t kmalloc_int(uint32_t sz, int align, uint32_t *phys)
    */
 void * kmalloc_a(uint32_t sz)
 {
-    return kmalloc_int(sz, 1, 0);
+    return (void *)kmalloc_int(sz, 1, 0);
 }
 
 /*

@@ -24,7 +24,7 @@ else: longer names
 #define GRAPHICS 0
 
 //multitasking
-#define MULTITASKING 0
+#define MULTITASKING 1
 
 //enable serial debugging (qemu console)
 #define SERIAL 1

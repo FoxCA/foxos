@@ -11,7 +11,7 @@ int path_exists(char * name){
     return 1;
 }
 
-char * cd(char * directory){
+void cd(char * directory){
 	char * path = canonicalize_path(current_directory,directory); 
 	if(path_exists(path)){
 		current_directory = path;
@@ -22,6 +22,12 @@ char * cd(char * directory){
 
 char * getcd(){
 	return current_directory;
+}
+
+
+void exec_elf(char * file){
+	char * path = canonicalize_path(current_directory,file);
+	do_elf_load(path);
 }
 
 list_t * ls(char * directory){
@@ -76,7 +82,7 @@ void pushd(char * filename){
 
 void popd(){
 	if(list_size(dirstack) != 0){
-		current_directory = list_pop(dirstack);
+		current_directory = (char *)list_pop(dirstack)->val;
 	}else{
 		printf("directory stack empty\n");
 	}

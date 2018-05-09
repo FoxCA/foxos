@@ -31,5 +31,12 @@ cp ext2_hda.img ext2_hdd.img
 printf "ext2-formatted disk, hda, hdb, hdc, and hdd created\n"
 
 ./mount_disk.sh
+
+pushd .
+cd ./src/arch/user
+make
+popd
+sudo mkdir /mnt/executable
+sudo find . -name \*.elf -exec cp {} /mnt/executable \;
 sudo cp -r files/* /mnt
 ./umount_disk.sh

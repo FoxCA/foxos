@@ -82,6 +82,7 @@ void irq_install()
     idt_set_entry(45, (unsigned)irq13, 0x08, 0x8E);
     idt_set_entry(46, (unsigned)irq14, 0x08, 0x8E);
     idt_set_entry(47, (unsigned)irq15, 0x08, 0x8E);
+    // idt_set_entry(128, (uint32_t)exception128, 0x08, 0x8E);
 }
 
 /*

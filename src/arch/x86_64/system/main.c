@@ -104,6 +104,9 @@ void main()
     settextcolor(green,black);
     printf("processes initialized\n");
 
+    enter_usermode();
+
+
     settextcolor(yellow,black);
     syscall_init();
     settextcolor(green,black);
@@ -115,6 +118,8 @@ void main()
     tss_set_stack(0x10, esp);
     settextcolor(green,black);
 
+
+
     printf("Fox Kernel ");
     printf(FOX_VERSION);
     printf(" loaded.\n");
@@ -123,7 +128,6 @@ void main()
     printf("press any key to continue\n");
 
     autoscroll();
-
     settextcolor(white,black);
     // getc(); 
     // cls();

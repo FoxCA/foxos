@@ -10,6 +10,8 @@ void * syscall_table[NUM_SYSCALLS] = {
 };
 
 void syscall_dispatcher(regs * regs) {
+    printf("syscall!\n");
+
     if(regs->eax >= NUM_SYSCALLS) return;
     void * system_api = syscall_table[regs->eax];
     int ret;

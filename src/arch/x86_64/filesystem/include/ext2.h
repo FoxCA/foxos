@@ -186,7 +186,7 @@ void rewrite_bgds(ext2_fs_t * ext2fs);
 
 void rewrite_superblock(ext2_fs_t * ext2fs);
 
-int alloc_inode_metadata_block(uint32_t * block_ptr, ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_idx, char * buffer, unsigned int block_overwrite);
+int alloc_inode_metadata_block(uint32_t * block_ptr, ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_idx, char * buffer, uint32_t block_overwrite);
 
 uint32_t get_disk_block_number(ext2_fs_t * ext2fs, inode_t * inode, uint32_t inode_block);
 

@@ -178,6 +178,7 @@ protected_mode_32:use32
     sti
     popa
     ret
+
 padding:
     db 0x0
     db 0x0

@@ -13,7 +13,7 @@ int printf(char *s, ...) {
 
   va_list valist;
 
-  va_start(valist, _VABUFFERSIZE);
+  va_start(valist, s);
 
   for (; *s != '\0'; s++) {
     if (*s == '\n') {
@@ -73,7 +73,7 @@ int printf_qemu(char *s, ...) {
 
   va_list valist;
 
-  va_start(valist, _VABUFFERSIZE);
+  va_start(valist, s);
 
   for (; *s != '\0'; s++) {
     if (*s == '\n') {
